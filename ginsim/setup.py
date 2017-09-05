@@ -1,9 +1,9 @@
 from setuptools import setup
 
-NAME = 'colomoto'
+NAME = 'ginsim'
 setup(
     name=NAME,
     version='0.1',
-    packages = [NAME]
+    py_modules = [NAME]
 )
 
