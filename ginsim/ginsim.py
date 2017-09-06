@@ -21,7 +21,7 @@ def GINsim():
     port = int(proc.stdout.readline().strip())
     
     # start the gateway and return the entry point (GINsim's ScriptLauncher)
-    param = GatewayParameters(port=port)
+    param = GatewayParameters(port=port, auto_convert=True, auto_field=True)
     gw = JavaGateway(gateway_parameters=param)
     
     gs = gw.entry_point
