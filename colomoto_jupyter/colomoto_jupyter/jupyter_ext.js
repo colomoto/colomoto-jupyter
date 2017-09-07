@@ -24,6 +24,10 @@ function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
         return;
     }
 
+    input.disabled = true;
+    input.style.cursor = "wait";
+    input.parentElement.style.cursor = "wait";
+
     var f = input.files[0];
     var reader = new FileReader();
     reader.onload = (function(f) {
