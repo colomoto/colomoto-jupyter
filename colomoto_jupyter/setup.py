@@ -9,7 +9,7 @@ setup(name=NAME,
     author_email = "loic.pauleve@ens-cachan.org",
     url = "https://github.com/colomoto/colomoto-api",
     description = "CoLoMoTo helper functions for Juypter integration",
-    long_description = open("README.rst").read(),
+    long_description = open("README.md").read(),
     install_requires = [
         "networkx",
         "pydotplus",
