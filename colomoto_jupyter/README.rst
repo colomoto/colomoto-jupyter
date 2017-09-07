@@ -13,7 +13,7 @@ See also https://github.com/colomoto/colomoto-docker
 Quick usage guide
 =================
 
-.. code:: python
+```
     from colomoto_jupyter import IN_IPYHON, jupyter_setup
 
     if IN_IPYTHON:
@@ -55,9 +55,10 @@ Quick usage guide
             menu=menu,
             toolbar=toolbar,
             js_api=js_api)
+```
 
 See
-`demo_tool.py<https://github.com/colomoto/colomoto-api/blob/master/colomoto_jupyter/demo_tool.py>`_ for a more complete usage example.
+[demo_tool.py](https://github.com/colomoto/colomoto-api/blob/master/colomoto_jupyter/demo_tool.py>) for a more complete usage example.
 
 
 
