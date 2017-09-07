@@ -13,7 +13,7 @@ See also https://github.com/colomoto/colomoto-docker
 Quick usage guide
 =================
 
-```
+```python
 from colomoto_jupyter import IN_IPYHON, jupyter_setup
 
 if IN_IPYTHON:
