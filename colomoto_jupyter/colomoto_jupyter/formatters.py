@@ -1,5 +1,9 @@
 
-import networkx as nx
+try:
+    import networkx as nx
+    HAS_NETWORKX = True
+except ImportError:
+    HAS_NETWORKX = False
 
 def svg_of_graph(g):
     """
@@ -16,7 +20,8 @@ def install_default_formatters():
     * ``networkx.Graph`` with :py:func:`.svg_of_graph`
     """
     ip = get_ipython()
-    # nxgraph to svg
-    svg_formatter = ip.display_formatter.formatters["image/svg+xml"]
-    svg_formatter.for_type(nx.Graph, svg_of_graph)
+    if HAS_NETWORKX:
+        # nxgraph to svg
+        svg_formatter = ip.display_formatter.formatters["image/svg+xml"]
+        svg_formatter.for_type(nx.Graph, svg_of_graph)
 
