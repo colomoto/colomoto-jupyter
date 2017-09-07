@@ -32,7 +32,20 @@ function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
                 content: e.target.result,
                 name: f.name
             };
-            var pycb = py_callback_name+"("+JSON.stringify(obj)+")"
+
+            //var pycb = py_callback_name+"("+JSON.stringify(obj)+")"
+            // hack/workaround:
+            // it seems that Jupyter does not like very long lines
+            // so we split the data in chunks
+            var chunk_length = 100;
+            var pycb = "__colomoto_upload_name = " + JSON.stringify(obj.name) + "\n";
+            pycb += "__colomoto_upload_content = \\\n";
+            for (var i = 0; i < obj.content.length; i += chunk_length) {
+                pycb += "\"" + obj.content.substr(i, chunk_length)+"\"\\\n"
+            }
+            pycb += "\n"
+            pycb += py_callback_name+"({'name':__colomoto_upload_name, 'content': __colomoto_upload_content})";
+
             IPython.notebook.kernel.execute(pycb, {iopub: {output: callback}});
         };
     })(f);
