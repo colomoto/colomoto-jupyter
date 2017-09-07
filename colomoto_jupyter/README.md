@@ -1,5 +1,4 @@
-CoLoMoTo helper functions for Juypter integration
--------------------------------------------------
+# CoLoMoTo helper functions for Juypter integration
 
 [![PyPI version](https://badge.fury.io/py/colomoto_jupyter.svg)](https://badge.fury.io/py/colomoto_jupyter)
 
@@ -13,8 +12,7 @@ It currently provides:
 See also https://github.com/colomoto/colomoto-docker
 
 
-Quick usage guide
-=================
+## Quick usage guide
 
 ```python
 from colomoto_jupyter import IN_IPYHON, jupyter_setup
