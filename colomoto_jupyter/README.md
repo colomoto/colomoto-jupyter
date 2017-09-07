@@ -1,6 +1,9 @@
 CoLoMoTo helper functions for Juypter integration
 -------------------------------------------------
 
+[![PyPI version](https://badge.fury.io/py/colomoto_jupyter.svg)](https://badge.fury.io/py/colomoto_jupyter)
+
+
 Provides helper functions for integration in the CoLoMoTo Jupyter notebook.
 It currently provides:
 * injection of menus and toolbars
@@ -34,7 +37,7 @@ if IN_IPYTHON:
     toolbar = [
         {"name": "Label",
          "setup": {
-            "icon": "fa-something",
+            "icon": "fa-something", # http://fontawesome.io/icons/
             "help": "tooltip text",
             "handler": "javascript_function_1"}}
     ]
