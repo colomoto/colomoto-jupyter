@@ -48,7 +48,8 @@ function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
                 pycb += "\"" + obj.content.substr(i, chunk_length)+"\"\\\n"
             }
             pycb += "\n"
-            pycb += py_callback_name+"({'name':__colomoto_upload_name, 'content': __colomoto_upload_content})";
+            pycb += py_callback_name+"({'name':__colomoto_upload_name, 'content': __colomoto_upload_content})\n";
+            pycb += "del __colomoto_upload_name, __colomoto_upload_content"
 
             IPython.notebook.kernel.execute(pycb, {iopub: {output: callback}});
         };
