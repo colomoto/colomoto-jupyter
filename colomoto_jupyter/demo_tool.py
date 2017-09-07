@@ -26,13 +26,14 @@ if IN_IPYTHON:
             "help": "Upload model",
             "handler": "action_upload_model"}},
     ]
-    js_api = """
-    action_upload_model : function () {
-        var cell = Jupyter.notebook.get_selected_cell();
-        cell.set_text('model = demo_tool.upload()');
-        cell.focus_editor();
-        }
-    """
+    js_api = {
+        "action_upload_model":
+            """function () {
+            var cell = Jupyter.notebook.get_selected_cell();
+            cell.set_text('model = demo_tool.upload()');
+            cell.focus_editor(); }
+            """
+    }
     jupyter_setup("test",
         label="Test",
         color="blue",

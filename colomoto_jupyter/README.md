@@ -14,6 +14,7 @@ See also https://github.com/colomoto/colomoto-docker
 
 ## Quick usage guide
 
+
 ```python
 from colomoto_jupyter import IN_IPYHON, jupyter_setup
 
@@ -22,7 +23,7 @@ if IN_IPYTHON:
     # menu specification (list of dict), optional
     menu = [
         {"name": "entry 1",
-            "snippet": ["code to be append to the current ceull"]},
+            "snippet": ["code to be append to the current cell"]},
         "---", # separation
         {"name": "submenu 1",
             "sub-menu": [
@@ -41,14 +42,16 @@ if IN_IPYTHON:
     ]
 
     ## additional javascript functions, optional
-    js_api = """
-    javascript_function_1: function () {
-        alert("plop");
-    },
-    javascript_function_2: function () {
-        alert("foo");
+    js_api = {
+        "javascript_function_1":
+            """
+            function () { alert("plop"); }
+            """,
+        "javascript_function_2":
+            """
+            function () { alert("bar"); }
+            """,
     }
-    """
 
     jupyter_setup("mymodule",
         label="My module",
@@ -60,6 +63,5 @@ if IN_IPYTHON:
 
 See
 https://github.com/colomoto/colomoto-api/blob/master/colomoto_jupyter/demo_tool.py for a more complete usage example.
-
 
 
