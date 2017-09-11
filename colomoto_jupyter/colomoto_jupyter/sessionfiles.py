@@ -11,9 +11,6 @@ CFG = {
 Python module configuation:
 
 * `output_dir`: directory to use for saving intermediary files.
-* `dbg`: enable debug output (see also :py:func:`.enable_dbg`,
-  :py:func:`.disable_dbg`, :py:func:`.dbg`).
-* `console`: assume console output
 """
 
 __TMPFILES = []

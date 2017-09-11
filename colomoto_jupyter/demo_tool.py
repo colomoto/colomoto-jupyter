@@ -20,7 +20,7 @@ if IN_IPYTHON:
     ]
 
     toolbar = [
-        {"name": "Upload model",
+        {"name": "upload",
          "setup": {
             "icon": "fa-upload",
             "help": "Upload model",

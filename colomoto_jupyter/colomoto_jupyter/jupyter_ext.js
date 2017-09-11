@@ -1,4 +1,6 @@
 
+var debug_outdata  = null
+
 function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
 
     function callback(out_data) {
@@ -6,6 +8,7 @@ function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
         var cell_idx = Jupyter.notebook.get_cell_elements().index(cell_element);
         var cell = Jupyter.notebook.get_cell(cell_idx);
 
+        debug_outdata = out_data;
         var filename = out_data.content.text;
 
         var code = cell.get_text();

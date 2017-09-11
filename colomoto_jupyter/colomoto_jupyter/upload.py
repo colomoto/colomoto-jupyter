@@ -11,8 +11,7 @@ import sys
 def _jupyter_upload_callback(data):
     filename = new_output_file(suffix="_%s" % data["name"])
     content = base64.b64decode(data["content"].split(",")[1])
-    content = content.decode("utf-8")
-    with open(filename, 'w') as f:
+    with open(filename, "wb") as f:
         f.write(content)
     print(filename,end='')
     return filename
