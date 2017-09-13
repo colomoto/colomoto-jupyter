@@ -6,16 +6,16 @@ if IN_IPYTHON:
 
     menu = [
         {"name": "Load model",
-            "snippet": ["model = demo_tool.load(\"filename\")"]},
+            "snippet": "model = demo_tool.load(\"filename\")"},
         {"name":"Upload model",
-            "snippet": ["model = demo_tool.upload()"]},
+            "snippet": "model = demo_tool.upload()"}, # use lists for multiple lines
         "---",
         {"name":"Model export",
             "sub-menu": [
             {"name": "Format 1 (.f1)",
-                "snippet": ['model.export("model.f1")']},
+                "snippet": 'model.export("model.f1")'},
             {"name": "Format 2 (.f2)",
-                "snippet": ['model.export("model.f2")']},
+                "snippet": 'model.export("model.f2")'},
             ]},
     ]
 
@@ -30,11 +30,11 @@ if IN_IPYTHON:
         "action_upload_model":
             """function () {
             var cell = Jupyter.notebook.get_selected_cell();
-            cell.set_text('model = demo_tool.upload()');
+            cell.set_text('model = '+demo_tool_jsapi.module_alias+'.upload()');
             cell.focus_editor(); }
             """
     }
-    jupyter_setup("test",
+    jupyter_setup(__name__,
         label="Test",
         color="blue",
         menu=menu,

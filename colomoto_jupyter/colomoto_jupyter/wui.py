@@ -1,5 +1,6 @@
 
 import json
+import random
 
 def wui_sources(name, label=None, color=None, menu=None, toolbar=None, js_api={}):
     args = {
@@ -35,14 +36,17 @@ def wui_sources(name, label=None, color=None, menu=None, toolbar=None, js_api={}
 
     js_api = ",\n".join(["%s: %s" % item for item in js_api.items()])
 
+    ssid = "colomoto-setup-{}".format(random.randint(1, 10**7))
+
     setup_js = """
     var {name}_jsapi = {{ {js_api} }};
-    colomoto_extension(Jupyter, "{name}", {menu}, {toolbar}, {name}_jsapi);
+    colomoto_extension(Jupyter, "{ssid}", "{name}", {menu}, {toolbar}, {name}_jsapi);
     """
     setup_js = setup_js.format(name=name,
+                                ssid=ssid,
                                 menu=menu_js,
                                 toolbar=toolbar_js,
                                 js_api=js_api)
 
-    return {"js": setup_js, "css": src_css}
+    return {"js": setup_js, "css": src_css, "ssid": ssid}
 

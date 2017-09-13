@@ -1,6 +1,32 @@
 
 var debug_outdata  = null
 
+function detect_import(cell, module) {
+    var code = cell.get_text();
+    code = code.replace(/\\\n/g, "");
+    debug_outdata = code;
+    var lines = code.split("\n");
+    var r_simple = new RegExp("^("+module+")$");
+    var r_alias = new RegExp("^"+module+"\\s+as\\s+(\\w+)$");
+    for (var i = 0; i < lines.length; ++i) {
+        if (/^import\s/.test(lines[i])) {
+            code = lines[i].substr(7);
+            var parts = code.split(",")
+            for (var j = 0; j < parts.length; ++j) {
+                code = parts[j].trim();
+                var m = code.match(r_simple);
+                if (!m) {
+                    m = code.match(r_alias);
+                }
+                if (m) {
+                    return m[1];
+                }
+            }
+        }
+    }
+    return null;
+}
+
 function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
 
     function callback(out_data) {
@@ -8,7 +34,6 @@ function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
         var cell_idx = Jupyter.notebook.get_cell_elements().index(cell_element);
         var cell = Jupyter.notebook.get_cell(cell_idx);
 
-        debug_outdata = out_data;
         var filename = out_data.content.text;
 
         var code = cell.get_text();
@@ -68,7 +93,7 @@ function resolve_function(tool_api, funcname) {
     }
 }
 
-function colomoto_extension(Jupyter, name, menu, toolbar, tool_api) {
+function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
 
     function insert_snippet_code(snippet) {
         var cell = Jupyter.notebook.get_selected_cell();
@@ -214,11 +239,42 @@ function colomoto_extension(Jupyter, name, menu, toolbar, tool_api) {
         Jupyter.toolbar.add_buttons_group(buttons, name+"-toolbar");
     }
 
+    function replace_menu_snippets(menu_spec, orig, dest) {
+        if (menu_spec.hasOwnProperty("snippet")) {
+            var snippet = menu_spec.snippet;
+            if (typeof snippet == "string" || snippet instanceof String) {
+                menu_spec["snippet"] = snippet.replace(orig, dest);
+            } else {
+                for (var i = 0; i < snippet.length; ++i) {
+                    menu_spec["snippet"][i] = snippet[i].replace(orig, dest);
+                }
+            }
+        }
+        if (menu_spec.hasOwnProperty("sub-menu")) {
+            for (var i = 0; i < menu_spec["sub-menu"].length; ++i) {
+                replace_menu_snippets(menu_spec["sub-menu"][i], orig, dest);
+            }
+        }
+    }
+
     function load_ipython_extension() {
+
+        var mycellelt = $("#"+ssid).parents('.cell');
+        var myidx = Jupyter.notebook.get_cell_elements().index(mycellelt);
+        var import_cell = Jupyter.notebook.get_cell(myidx);
+
+        var alias = detect_import(import_cell, name);
+        tool_api.module_alias = alias;
+        if (alias && alias != name) {
+            var orig = new RegExp("\\b"+name+"\\b");
+            replace_menu_snippets(menu, orig, alias);
+        }
+
         toolbar_setup(toolbar);
 
         $("#"+name+"_menu").parent().remove();
         menu_setup([menu], $("#help_menu").parent(), true);
+
 
         if (tool_api.hasOwnProperty("post_install_callback")) {
             tool_api.post_install_callback();

@@ -15,10 +15,13 @@ except NameError:
 
 
 
-def jupyter_js(data, autoclean=True):
-    return """<script type="text/javascript"%s>
+def jupyter_js(data, autoclean=True, **args):
+    if autoclean:
+        args["class"] = "to-be-removed"
+    args = " ".join(['%s="%s"' % it for it in args.items()]) if args else ""
+    return """<script type="text/javascript" %s>
         if (typeof Jupyter != 'undefined') {
-            %s }</script>""" % (' class="to-be-removed"' if autoclean else "", data)
+            %s }</script>""" % (args, data)
 
 if IN_IPYTHON:
     from IPython.display import display, HTML
@@ -35,12 +38,15 @@ def jupyter_setup(*args, **kwargs):
             js_src = f.read()
         __GLOBAL_INSTALL_DONE = True
 
+    jsargs = {}
     if "menu" in kwargs or "toolbar" in kwargs:
         wui_src = wui_sources(*args, **kwargs)
         js_src += wui_src["js"]
         css_src += wui_src["css"]
+        if "ssid" in wui_src:
+            jsargs["id"] = wui_src["ssid"]
 
-    js_src = jupyter_js(js_src)
+    js_src = jupyter_js(js_src, **jsargs)
     display(HTML("%s%s" % (js_src, css_src)))
 
 
