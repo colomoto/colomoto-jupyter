@@ -266,7 +266,7 @@ function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
         var alias = detect_import(import_cell, name);
         tool_api.module_alias = alias;
         if (alias && alias != name) {
-            var orig = new RegExp("\\b"+name+"\\b");
+            var orig = new RegExp("\\b"+name+"\\b", "g");
             replace_menu_snippets(menu, orig, alias);
         }
 
