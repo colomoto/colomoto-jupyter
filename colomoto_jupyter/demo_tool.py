@@ -59,6 +59,6 @@ def load(filename):
 if IN_IPYTHON:
     from colomoto_jupyter.upload import jupyter_upload
     def upload():
-        return jupyter_upload("demo_tool.upload", "demo_tool.load")
+        return jupyter_upload(upload, load)
 
 
