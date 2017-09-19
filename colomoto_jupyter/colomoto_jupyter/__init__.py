@@ -13,7 +13,8 @@ try:
 except NameError:
     IN_IPYTHON = False
 
-
+if IN_IPYTHON:
+    from IPython.display import display, HTML
 
 def jupyter_js(data, autoclean=True, **args):
     if autoclean:
@@ -23,8 +24,8 @@ def jupyter_js(data, autoclean=True, **args):
         if (typeof Jupyter != 'undefined') {
             %s }</script>""" % (args, data)
 
-if IN_IPYTHON:
-    from IPython.display import display, HTML
+def disp_jupyter_js(data, **opts):
+    display(HTML(jupyter_js(data, **opts)))
 
 __GLOBAL_INSTALL_DONE = False
 def jupyter_setup(*args, **kwargs):
