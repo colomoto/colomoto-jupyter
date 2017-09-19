@@ -9,7 +9,7 @@ def svg_of_graph(g):
     """
     Returns SVG representation of ``networkx.Graph`` `g` with GraphViz dot layout.
     """
-    dbg("computing graph layout...")
+    print("# computing graph layout...")
     return nx.nx_pydot.to_pydot(g).create_svg().decode()
 
 
