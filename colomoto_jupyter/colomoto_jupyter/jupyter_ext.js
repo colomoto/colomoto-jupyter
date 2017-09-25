@@ -227,7 +227,7 @@ function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
 
     function toolbar_setup(actions) {
         var buttons = [];
-        for (var i = 0; i < actions.length; ++i) {
+        for (var i = 0; i < actions.length; ++i) {
             var setup = actions[i].setup;
             if (typeof setup.handler == 'string') {
                 setup.handler = resolve_function(tool_api, setup.handler);
@@ -286,7 +286,7 @@ function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
     load_ipython_extension();
 }
 
-function resolve_toolbar_handlers(tool_api, toolbar_spec) {
+function resolve_toolbar_handlers(tool_api, toolbar_spec) {
     for (var i = 0; i < toolbar_spec.length; ++i) {
         func = resolve_function(tool_api, toolbar_spec[i]["setup"]["handler"]);
         toolbar_spec[i]["setup"]["handler"] = func;
