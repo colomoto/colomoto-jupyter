@@ -9,11 +9,9 @@ It currently provides:
 * interactive file upload
 * formatter for ``networkx`` graphs
 
-See also https://github.com/colomoto/colomoto-docker
+See also https://github.com/colomoto/colomoto-docker.
 
-
-## Quick usage guide
-
+## Quick usage guide
 
 ```python
 from colomoto_jupyter import IN_IPYTHON, jupyter_setup
@@ -62,6 +60,6 @@ if IN_IPYTHON:
 ```
 
 See
-https://github.com/colomoto/colomoto-api/blob/master/colomoto_jupyter/demo_tool.py for a more complete usage example.
+https://github.com/colomoto/colomoto-jupyter/blob/master/demo_tool.py for a more complete usage example.
 
 
