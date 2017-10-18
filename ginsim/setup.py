@@ -12,8 +12,10 @@ setup(name=NAME,
     long_description = """
 Provides interface to Java API of GINsim and BioLQM
 """,
-    install_requires = "py4j",
-    license="LGPL v3+/CeCILL-C",
+    install_requires = [
+        "py4j",
+        "colomoto_jupyter",
+    ],
     packages = find_packages(),
     classifiers=[
         "Intended Audience :: Science/Research",

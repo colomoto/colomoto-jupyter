@@ -1,6 +1,7 @@
 
 import atexit
 import subprocess
+from subprocess import PIPE
 
 from py4j.java_gateway import JavaGateway, GatewayParameters
 
@@ -18,7 +19,7 @@ japi = LQMProxy()
 def start():
     assert (not __env)
     __env["proc"] = subprocess.Popen(["GINsim", "-py"], \
-                        stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                        stdout=PIPE, stdin=PIPE, stderr=PIPE)
     port = int(__env["proc"].stdout.readline().strip())
 
     # start the gateway and return the entry point (GINsim's ScriptLauncher)
