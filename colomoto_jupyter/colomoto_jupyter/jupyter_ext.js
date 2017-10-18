@@ -270,7 +270,9 @@ function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
             replace_menu_snippets(menu, orig, alias);
         }
 
-        toolbar_setup(toolbar);
+        if (toolbar) {
+            toolbar_setup(toolbar);
+        }
 
         $("#"+name+"_menu").parent().remove();
         menu_setup([menu], $("#help_menu").parent(), true);

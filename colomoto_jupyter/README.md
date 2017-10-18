@@ -16,7 +16,7 @@ See also https://github.com/colomoto/colomoto-docker
 
 
 ```python
-from colomoto_jupyter import IN_IPYHON, jupyter_setup
+from colomoto_jupyter import IN_IPYTHON, jupyter_setup
 
 if IN_IPYTHON:
 
