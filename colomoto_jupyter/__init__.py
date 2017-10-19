@@ -53,7 +53,7 @@ def jupyter_setup(*args, **kwargs):
 
 def show_image(data):
     if isinstance(data,str):
-        data = base64.b64decode(b64)
+        data = base64.b64decode(data)
     
     return Image(data=data)
 
