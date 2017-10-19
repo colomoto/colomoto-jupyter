@@ -1,6 +1,7 @@
 
 import os
 import json
+import base64
 
 from .formatters import install_default_formatters
 from .wui import wui_sources
@@ -14,7 +15,7 @@ except NameError:
     IN_IPYTHON = False
 
 if IN_IPYTHON:
-    from IPython.display import display, HTML
+    from IPython.display import display, HTML, Image
 
 def jupyter_js(data, autoclean=True, **args):
     if autoclean:
@@ -50,6 +51,11 @@ def jupyter_setup(*args, **kwargs):
     js_src = jupyter_js(js_src, **jsargs)
     display(HTML("%s%s" % (js_src, css_src)))
 
+def show_image(data):
+    if isinstance(data,str):
+        data = base64.b64decode(b64)
+    
+    return Image(data=data)
 
 __ALL__ = ["IN_IPYTHON",
     "jupyter_js",
