@@ -1,0 +1,43 @@
+{% set name = "colomoto_jupyter" %}
+{% set version = "0.3.5" %}
+{% set file_ext = "tar.gz" %}
+{% set hash_type = "md5" %}
+{% set hash_value = "66cad03962cd29c384ca4dd9c36d99c8" %}
+
+package:
+  name: '{{ name|lower }}'
+  version: '{{ version }}'
+
+source:
+  fn: '{{ name }}-{{ version }}.{{ file_ext }}'
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ file_ext }}
+  '{{ hash_type }}': '{{ hash_value }}'
+
+channels:
+  - colomoto # for pydot
+  - bioconda # for pygraphviz
+
+build:
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+  noarch: python
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - networkx >=2.0
+    - pydot >=1.2.3
+    - pygraphviz
+
+about:
+  home: https://github.com/colomoto/colomoto-jupyter
+  license: LGPL v3+/CeCILL-C
+  summary: 'CoLoMoTo helper functions for Juypter integration'
+  license_family: LGPL
+
