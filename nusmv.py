@@ -3,6 +3,8 @@ import os
 import subprocess
 import tempfile
 
+from colomoto.temporal_logics import colomoto_state_factory
+
 class CmdError(subprocess.CalledProcessError):
     def __str__(self):
         stderr = "\n%s" % self.stderr.decode()
@@ -113,7 +115,15 @@ class NuSMV(object):
         self.__custom_specs.clear()
 
 
-def load(filename, may_have_specs=False):
+def load(filename):
     return NuSMV(filename)
+
+def default_state_tr(ai):
+    return "{}={}".format(*ai)
+
+class ColomotoNuSMV(NuSMV):
+    def __init__(self, filename, tr=default_state_tr):
+        NuSMV.__init__(self, filename)
+        self.ModelState = colomoto_state_factory(tr)
 
 
