@@ -110,6 +110,9 @@ class NuSMV(object):
     def add_ctl(self, expr, *fmt, **kwargs):
         self.add_spec("CTL", expr, *fmt, **kwargs)
 
+    def add_init(self, expr):
+        self.add_instruction("INIT {}".format(expr))
+
     def reset(self):
         self.append_lines.clear()
         self.__custom_specs.clear()
@@ -124,6 +127,6 @@ def default_state_tr(ai):
 class ColomotoNuSMV(NuSMV):
     def __init__(self, filename, tr=default_state_tr):
         NuSMV.__init__(self, filename)
-        self.ModelState = colomoto_state_factory(tr)
+        self.S = colomoto_state_factory(tr)
 
 
