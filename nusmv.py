@@ -17,6 +17,7 @@ class NuSMV(object):
     def __init__(self, input_smv):
         self.input_smv = input_smv
         self.__custom_specs = []
+        self.append_lines = []
         self.opts = {
             "dcx": True,
             "coi": True,
@@ -26,15 +27,13 @@ class NuSMV(object):
         """
         Call NuSMV and returns the content of stdout
         """
-        if self.__custom_specs:
+        if self.append_lines:
             # we need to generate a temporary file
             fd, input_file = tempfile.mkstemp(suffix=".smv")
             with open(fd, "w") as out, open(self.input_smv) as src:
                 out.write(src.read())
-                for (tspec, expr, name) in self.__custom_specs:
-                    out.write("{}SPEC {}{};\n".format(tspec,
-                        "NAME {} := ".format(name) if name else "",
-                        expr))
+                for line in self.append_lines:
+                    out.write("%s\n" % line)
             todel = True
         else:
             input_file = self.input_smv
@@ -68,10 +67,8 @@ class NuSMV(object):
 
         if self.__custom_specs:
             nc = len(self.__custom_specs)
-            keys = [name if name else spec \
-                        for (_, spec, name) in self.__custom_specs]
             results = results[:-nc] \
-                + list(zip(keys, [valid for (_,valid) in results[-nc:]]))
+                + list(zip(self.__custom_specs, [valid for (_,valid) in results[-nc:]]))
 
         return NuSMVResults(results)
 
@@ -82,10 +79,15 @@ class NuSMV(object):
     def alltrue(self):
         return self.verify().alltrue()
 
+    def add_instruction(self, line):
+        self.append_lines.append(line)
+
     def add_spec(self, tspec, expr, *fmt, **kwargs):
         self.modified = True
         assert tspec in ["LTL", "CTL"], "Unkown specification type"
         name = kwargs.get("name")
+        if not isinstance(expr, str):
+            expr = str(expr)
         if fmt:
             vfmt = []
             kfmt = {}
@@ -95,7 +97,10 @@ class NuSMV(object):
                 else:
                     vfmt.append(v)
             expr = expr.format(*vfmt, **kfmt)
-        self.__custom_specs.append((tspec, expr, name))
+        self.add_instruction("{}SPEC {}{};\n".format(tspec,
+                    "NAME {} := ".format(name) if name else "",
+                    expr))
+        self.__custom_specs.append(name if name else expr)
 
     def add_ltl(self, expr, *fmt, **kwargs):
         self.add_spec("LTL", expr, *fmt, **kwargs)
@@ -104,6 +109,7 @@ class NuSMV(object):
         self.add_spec("CTL", expr, *fmt, **kwargs)
 
     def reset(self):
+        self.append_lines.clear()
         self.__custom_specs.clear()
 
 
