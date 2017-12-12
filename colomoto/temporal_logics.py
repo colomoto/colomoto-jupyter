@@ -43,7 +43,7 @@ class State(UnaryOperator):
 
 from colomoto import ModelState
 
-def colomoto_state_factory(tr):
+def colomoto_state_cls(tr):
     class ColomotoState(UnaryOperator):
         def __init__(self, *args, **kwargs):
             state = ModelState(*args, **kwargs)
@@ -82,7 +82,7 @@ class AU(BinaryOperator):
         return "A (({}) U ({}))".format(self.left, self.right)
 
 __all__ = ["If", "State",
-    "colomoto_state_factory",
+    "colomoto_state_cls",
     "F", "G", "U",
     "EF", "AF", "EG", "AG", "EU", "AU"]
 
