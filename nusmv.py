@@ -51,7 +51,7 @@ class NuSMV(object):
         except subprocess.CalledProcessError as e:
             raise CmdError(e.returncode, e.cmd, e.output, e.stderr) from None
         finally:
-            if False and todel:
+            if todel:
                 os.unlink(input_file)
         return output
 
@@ -84,7 +84,7 @@ class NuSMV(object):
 
     def add_spec(self, tspec, expr, *fmt, **kwargs):
         self.modified = True
-        assert tspec in ["LTL", "CTL"], "Unkown specification type"
+        assert tspec in ["LTL", "CTL"], "Unknown specification type"
         name = kwargs.get("name")
         if not isinstance(expr, str):
             expr = str(expr)
