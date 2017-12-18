@@ -86,8 +86,6 @@ class NuSMV(object):
         self.modified = True
         assert tspec in ["LTL", "CTL"], "Unknown specification type"
         name = kwargs.get("name")
-        if not isinstance(expr, str):
-            expr = str(expr)
         if fmt:
             vfmt = []
             kfmt = {}
