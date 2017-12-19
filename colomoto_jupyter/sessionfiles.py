@@ -39,7 +39,10 @@ def new_output_file(ext=None, **tempargs):
         tempargs["suffix"] = "%s.%s" % (tempargs.get("suffix", ""), ext)
     _, filename = tempfile.mkstemp(dir=output_dir(), **tempargs)
     __TMPFILES.append(filename)
-    return os.path.relpath(filename)
+    if IN_IPYTHON:
+        return os.path.relpath(filename)
+    else:
+        return os.path.abspath(filename)
 
 def remove_output_files():
     """
@@ -49,6 +52,10 @@ def remove_output_files():
         if os.path.exists(filename):
             os.unlink(filename)
     __TMPFILES.clear()
+
+if not IN_IPYTHON:
+    import atexit
+    atexit.register(remove_output_files)
 
 __all__ = [
     "output_dir",
