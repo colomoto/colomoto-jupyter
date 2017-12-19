@@ -41,8 +41,6 @@ class S(UnaryOperator):
             self.arg = arg
         elif kwargs:
             self.arg = ModelState(**kwargs)
-    def __str__(self):
-        return self.arg
 
 ##
 # LTL
