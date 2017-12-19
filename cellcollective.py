@@ -1,15 +1,21 @@
 
 import re
 
+from urllib.parse import urlparse
+
 urlidentifier = re.compile("https?://[^/]*\\bcellcollective\.org/#(\\d+)\\b")
 
-def url_matches(url):
-    return urlidentifier.search(url) is not None
-
 def id_from_url(url):
-    urlmatch = urlidentifier.search(url)
-    if urlmatch:
-        return urlmatch.group(1)
+    uri = urlparse(url)
+    if uri.netloc:
+        if uri.scheme == "cellcollective":
+            return uri.netloc
+        urlmatch = urlidentifier.search(url)
+        if urlmatch:
+            return urlmatch.group(1)
+
+def url_matches(url):
+    return id_from_url(url) is not None
 
 class CellCollectiveModel(object):
     def __init__(self, identifier):

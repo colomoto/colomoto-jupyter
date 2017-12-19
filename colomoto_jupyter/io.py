@@ -17,9 +17,7 @@ def download(url, suffix=None):
 def ensure_localfile(filename):
     uri = urlparse(filename)
     if uri.netloc:
-        if uri.scheme == "cellcollective":
-            cellc = cellcollective.connect(uri.netloc)
-        elif cellcollective.url_matches(filename):
+        if cellcollective.url_matches(filename):
             cellc = cellcollective.connect(filename)
             bname = cellc.sbml_basename
             url = cellc.sbml_url
