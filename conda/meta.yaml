@@ -1,8 +1,8 @@
 {% set name = "colomoto_jupyter" %}
-{% set version = "0.3.5" %}
+{% set version = "0.4" %}
 {% set file_ext = "tar.gz" %}
 {% set hash_type = "md5" %}
-{% set hash_value = "66cad03962cd29c384ca4dd9c36d99c8" %}
+{% set hash_value = "df34cfd215037dc836016dd4263fc7f0" %}
 
 package:
   name: '{{ name|lower }}'
