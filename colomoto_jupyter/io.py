@@ -6,6 +6,8 @@ from urllib.request import urlretrieve
 from .sessionfiles import new_output_file
 from .ui import info
 
+import cellcollective
+
 def download(url, suffix=None):
     filename = new_output_file(suffix=suffix)
     info("Downloading '%s' to '%s'" % (url, filename))
@@ -15,8 +17,16 @@ def download(url, suffix=None):
 def ensure_localfile(filename):
     uri = urlparse(filename)
     if uri.netloc:
-        bname = os.path.basename(filename)
-        filename = download(uri.geturl(), suffix=bname)
+        if uri.scheme == "cellcollective":
+            cellc = cellcollective.connect(uri.netloc)
+        elif cellcollective.url_matches(filename):
+            cellc = cellcollective.connect(filename)
+            bname = cellc.sbml_basename
+            url = cellc.sbml_url
+        else:
+            bname = os.path.basename(filename)
+            url = uri.geturl()
+        filename = download(url, suffix=bname)
     assert os.path.exists(filename)
     return filename
 

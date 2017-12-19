@@ -1,4 +1,6 @@
 
+import sys
+
 from colomoto_jupyter import IN_IPYTHON
 
 if IN_IPYTHON:
