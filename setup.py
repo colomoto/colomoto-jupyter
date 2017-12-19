@@ -8,12 +8,12 @@ setup(name=NAME,
     version='0.4',
     author = "Loïc Paulevé",
     author_email = "loic.pauleve@ens-cachan.org",
-    url = "https://github.com/colomoto/colomoto-api",
+    url = "https://github.com/colomoto/colomoto-jupyter",
     description = "CoLoMoTo helper functions for Juypter integration",
     long_description = """
 Provides helper functions for integration in the CoLoMoTo Jupyter notebook.
 
-See https://github.com/colomoto/colomoto-api
+See https://github.com/colomoto/colomoto-jupyter
 """,
     extras_require = {
         "networkx": ["networkx >= 2.0", "pydot", "pygraphviz"],
