@@ -117,9 +117,10 @@ function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
 
         if (typeof menu_item_spec == 'string') {
             if (menu_item_spec != '---') {
-                console.log(mod_log_prefix,
-                    'Don\'t understand sub-menu string "' + menu_item_spec + '"');
-                return null;
+                return element.html(menu_item_spec)
+                        .addClass('ui-state-disabled')
+                        .attr({"style": "padding:2px .4em"})
+                       ;
             }
             return element.addClass('divider');
         }
