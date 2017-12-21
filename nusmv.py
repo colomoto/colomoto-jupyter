@@ -103,8 +103,18 @@ class NuSMV(object):
     def add_ltl(self, expr, *fmt, **kwargs):
         self.add_spec("LTL", expr, *fmt, **kwargs)
 
+    def add_ltls(self, specs, *fmt, **kwargs):
+        for name, expr in specs.items():
+            kwargs["name"] = name
+            self.add_ltl(expr, *fmt, **kwargs)
+
     def add_ctl(self, expr, *fmt, **kwargs):
         self.add_spec("CTL", expr, *fmt, **kwargs)
+
+    def add_ctls(self, specs, *fmt, **kwargs):
+        for name, expr in specs.items():
+            kwargs["name"] = name
+            self.add_ctl(expr, *fmt, **kwargs)
 
     def add_init(self, expr):
         self.add_instruction("INIT {}".format(expr))
