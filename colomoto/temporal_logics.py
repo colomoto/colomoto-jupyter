@@ -80,7 +80,13 @@ def nusmv_of_expr(e, tr):
         if isinstance(e, str):
             return e
         elif isinstance(e, (ModelState, dict)):
-            return " & ".join(map(tr, e.items()))
+            def nusmv_of_ai(ai):
+                a, i = ai
+                if isinstance(i, (tuple, set, list)):
+                    return "({})".format(" | ".join([tr((a,j)) for j in i]))
+                else:
+                    return tr(ai)
+            return " & ".join(map(nusmv_of_ai, e.items()))
         elif isinstance(e, UnaryOperator):
             arg = to_nusmv(e.arg)
             if isinstance(e, Not):
