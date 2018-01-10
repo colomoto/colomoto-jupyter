@@ -20,12 +20,20 @@ if IN_IPYTHON:
     def hello():
         docker_image = os.getenv("DOCKER_IMAGE")
         if docker_image:
-            docker_name, docker_tag = docker_image.split(":")
             docker_date = os.getenv("DOCKER_BUILD_DATE")
+
+            docker_name, docker_tag = docker_image.split(":")
+
+            # remove global namespace
+            parts = docker_name.split("/")
+            if len(parts) > 2:
+                docker_name = "/".join(parts[-2:])
+
             if docker_tag == "latest" and docker_date:
                 label = "`{}` built on `{}`".format(docker_name, docker_date)
             else:
                 label = "`{}`".format(docker_image)
+
             msg = "This notebook has been executed using the docker image %s" % label
             display(Markdown(msg))
 
