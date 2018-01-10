@@ -15,7 +15,21 @@ except NameError:
     IN_IPYTHON = False
 
 if IN_IPYTHON:
-    from IPython.display import display, HTML, Image
+    from IPython.display import display, HTML, Image, Markdown
+
+    def hello():
+        docker_image = os.getenv("DOCKER_IMAGE")
+        if docker_image:
+            docker_name, docker_tag = docker_image.split(":")
+            docker_date = os.getenv("DOCKER_BUILD_DATE")
+            if docker_tag == "latest" and docker_date:
+                label = "`{}` built on `{}`".format(docker_name, docker_date)
+            else:
+                label = "`{}`".format(docker_image)
+            msg = "This notebook has been executed using the docker image %s" % label
+            display(Markdown(msg))
+
+    hello()
 
 def jupyter_js(data, autoclean=True, **args):
     if autoclean:

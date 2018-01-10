@@ -4,3 +4,4 @@ gen
 __pycache__
 *.pyc
 .ipynb*
+*.log
