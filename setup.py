@@ -20,7 +20,7 @@ See https://github.com/colomoto/colomoto-jupyter
     },
     license="LGPL v3+/CeCILL-C",
     include_package_data = True,
-    packages = find_packages(),
+    packages = find_packages(), py_modules = ["cellcollective"],
     classifiers=[
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
