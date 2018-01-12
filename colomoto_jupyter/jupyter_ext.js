@@ -146,6 +146,7 @@ function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
         }
         else if (menu_item_spec.hasOwnProperty('external-link')) {
             a.empty();
+            a.attr('href', menu_item_spec['external-link']);
             a.attr({
                 'target' : '_blank',
                 'title' : 'Opens in a new window',
