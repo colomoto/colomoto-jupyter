@@ -32,7 +32,7 @@ if IN_IPYTHON:
             if docker_tag == "latest" and docker_date:
                 label = "`{}` built on `{}`".format(docker_name, docker_date)
             else:
-                label = "`{}`".format(docker_image)
+                label = "`{}:{}`".format(docker_name, docker_tag)
 
             msg = "This notebook has been executed using the docker image %s" % label
             display(Markdown(msg))
