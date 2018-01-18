@@ -39,6 +39,22 @@ if IN_IPYTHON:
 
     hello()
 
+def import_colomoto_tool(modname):
+    """
+    Import the module `modname` and make it available globally when in IPython.
+
+    Usage:
+
+    >>> modname = import_colomoto_tool("modname")
+    """
+    mod = __import__(modname, globals(), locals())
+    if IN_IPYTHON:
+        import builtins
+        attr = modname.split(".")[0]
+        if not hasattr(builtins, attr):
+            setattr(builtins, attr, mod)
+    return mod
+
 def jupyter_js(data, autoclean=True, **args):
     if autoclean:
         args["class"] = "to-be-removed"
