@@ -1,10 +1,7 @@
 
-var debug_outdata  = null
-
 function detect_import(cell, module) {
     var code = cell.get_text();
     code = code.replace(/\\\n/g, "");
-    debug_outdata = code;
     var lines = code.split("\n");
     var r_simple = new RegExp("^("+module+")$");
     var r_alias = new RegExp("^"+module+"\\s+as\\s+(\\w+)$");
@@ -27,6 +24,30 @@ function detect_import(cell, module) {
     return null;
 }
 
+function colomoto_replace_call(cell, orig, dest, args, comment=false) {
+    var call_regexp = new RegExp("\\."+orig.replace(".","\\.")+"\\(");
+    var call_replacer = new RegExp("\\."+orig.replace(".","\\.")
+                    + "\\(\\s*([^\\)]*)?\\)");
+    var code = cell.get_text();
+    var lines = code.split("\n");
+    if (args) {
+        var strargs = ", "+args.join(", ");
+    } else {
+        var strargs = "";
+    }
+    for (var i = 0; i < lines.length; ++i) {
+        if (call_regexp.test(lines[i])) {
+            var code = ""
+            if (comment) {
+                code += "#"+lines[i]+"\n";
+            }
+            code += lines[i].replace(call_replacer, "."+dest+"($1"+strargs+")")
+            lines[i] = code;
+        }
+    }
+    cell.set_text(code)
+}
+
 function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
 
     function callback(out_data) {
@@ -38,7 +59,7 @@ function colomoto_upload(Jupyter, ssid, input, py_callback_name, orig, dest) {
 
         var code = cell.get_text();
         code = code.replace(new RegExp("\\b" + orig.replace('.', '\\.')
-                    + "\\(\\s*((\\w+)=[^\)]*)?\\)"),
+                    + "\\(\\s*((\\w+)=[^\\)]*)?\\)"),
                 dest+"(\""+filename+"\",$1)");
         code = code.replace('",)', '")')
         cell.set_text(code);
