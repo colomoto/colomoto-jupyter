@@ -15,6 +15,9 @@ Provides helper functions for integration in the CoLoMoTo Jupyter notebook.
 
 See https://github.com/colomoto/colomoto-jupyter
 """,
+    install_requires = [
+        "beautifulsoup4",
+    ],
     extras_require = {
         "networkx": ["networkx >= 2.0", "pydot", "pygraphviz"],
     },

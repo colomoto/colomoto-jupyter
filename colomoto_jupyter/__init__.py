@@ -39,6 +39,14 @@ if IN_IPYTHON:
 
     hello()
 
+
+if IN_IPYTHON:
+    def URL(url):
+        return Markdown("[{0}]({0})".format(url))
+else:
+    def URL(url):
+        return url
+
 def import_colomoto_tool(modname):
     """
     Import the module `modname` and make it available globally when in IPython.
@@ -92,11 +100,6 @@ def jupyter_setup(*args, **kwargs):
 def show_image(data):
     if isinstance(data,str):
         data = base64.b64decode(data)
-    
     return Image(data=data)
 
-__ALL__ = ["IN_IPYTHON",
-    "jupyter_js",
-    "jupyter_setup",
-]
 
