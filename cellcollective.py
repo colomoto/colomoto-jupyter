@@ -69,6 +69,7 @@ class CellCollectiveSBMLModel(object):
 
     _key2metadata = {
         "uniprotid": METADATA_UNITPROTID,
+        "uniprotaccessionid": METADATA_UNITPROTID,
         "genename": METADATA_GENENAME,
         "ncbigeneid": METADATA_NCBIGENEID,
     }
