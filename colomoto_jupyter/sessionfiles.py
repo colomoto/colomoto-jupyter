@@ -5,15 +5,26 @@ import tempfile
 from colomoto_jupyter import IN_IPYTHON
 
 CFG = {
-    "output_dir": "gen" if IN_IPYTHON else tempfile.gettempdir(),
+    "output_dir": tempfile.gettempdir(),
+    "autoclean": True,
 }
 """
 Python module configuation:
 
 * `output_dir`: directory to use for saving intermediary files.
+* `autoclean`: if True, intermediary files will be deleted at script exit
 """
 
 __TMPFILES = []
+
+def preserve_output_files(output_dir="gen"):
+    """
+    Make intermediate output files in directory `output_dir` instead of default
+    system temporary directory, and do not remove them when the script
+    terminates.
+    """
+    CFG["output_dir"] = dest
+    CFG["autoclean"] = False
 
 def output_dir():
     """
@@ -46,20 +57,23 @@ def new_output_file(ext=None, **tempargs):
 
 def remove_output_files():
     """
-    Removes files created by colomoto
+    Removes files created by colomoto if `autoclean=True`, and in particular if
+    :py:func:`preserve_output_files` has not been called.
     """
+    if not CFG["autoclean"]:
+        return
     for filename in __TMPFILES:
         if os.path.exists(filename):
             os.unlink(filename)
     __TMPFILES.clear()
 
-if not IN_IPYTHON:
-    import atexit
-    atexit.register(remove_output_files)
+import atexit
+atexit.register(remove_output_files)
 
 __all__ = [
     "output_dir",
     "new_output_file",
     "remove_output_files",
+    "preserve_output_files",
 ]
 
