@@ -29,7 +29,7 @@ if IN_IPYTHON:
             if len(parts) > 2:
                 docker_name = "/".join(parts[-2:])
 
-            if docker_tag == "latest" and docker_date:
+            if docker_tag in ["next", "latest"] and docker_date:
                 label = "`{}` built on `{}`".format(docker_name, docker_date)
             else:
                 label = "`{}:{}`".format(docker_name, docker_tag)
