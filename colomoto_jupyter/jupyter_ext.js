@@ -21,7 +21,7 @@ function detect_import(cell, module) {
             }
         }
     }
-    return null;
+    return module;
 }
 
 function colomoto_replace_call(cell, orig, dest, args, comment=false) {
