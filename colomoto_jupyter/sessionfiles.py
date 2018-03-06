@@ -48,7 +48,8 @@ def new_output_file(ext=None, **tempargs):
         tempargs["prefix"] = "colomoto"
     if ext is not None:
         tempargs["suffix"] = "%s.%s" % (tempargs.get("suffix", ""), ext)
-    _, filename = tempfile.mkstemp(dir=output_dir(), **tempargs)
+    fd, filename = tempfile.mkstemp(dir=output_dir(), **tempargs)
+    os.close(fd)
     __TMPFILES.append(filename)
     if IN_IPYTHON:
         return os.path.relpath(filename)
