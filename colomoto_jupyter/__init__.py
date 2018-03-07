@@ -102,4 +102,19 @@ def show_image(data):
         data = base64.b64decode(data)
     return Image(data=data)
 
+if IN_IPYTHON:
+    try:
+        from tabulate import tabulate as _tabulate
+        def tabulate(*args, **kwargs):
+            if "tablefmt" in kwargs:
+                return _tabulate(*args, **kwargs)
+            defaults = {
+                "tablefmt": "pipe",
+                "headers": "keys",
+                "showindex": "always"
+            }
+            defaults.update(kwargs)
+            return Markdown(tabulate(*args, **defaults))
+    except ImportError:
+        pass
 

@@ -29,6 +29,7 @@ requirements:
     - networkx >=2.0
     - pydot >=1.2.3
     - pygraphviz
+    - tabulate
 
 about:
   home: https://github.com/colomoto/colomoto-jupyter
