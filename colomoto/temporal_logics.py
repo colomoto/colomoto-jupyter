@@ -105,9 +105,9 @@ def nusmv_of_expr(e, tr):
             elif isinstance(e, If):
                 tmpl = "({}) -> ({})"
             elif isinstance(e, EU):
-                tmpl = "E (({}) U ({}))"
+                tmpl = "E [({}) U ({})]"
             elif isinstance(e, AU):
-                tmpl = "A (({}) U ({}))"
+                tmpl = "A [({}) U ({})]"
             return tmpl.format(left, right)
         else:
             raise NotImplementedError
