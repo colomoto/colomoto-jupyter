@@ -6,6 +6,7 @@ from colomoto_jupyter import IN_IPYTHON
 
 CFG = {
     "output_dir": tempfile.gettempdir(),
+    "use_relpath": False,
     "autoclean": True,
 }
 """
@@ -51,10 +52,11 @@ def new_output_file(ext=None, **tempargs):
     fd, filename = tempfile.mkstemp(dir=output_dir(), **tempargs)
     os.close(fd)
     __TMPFILES.append(filename)
-    if IN_IPYTHON:
-        return os.path.relpath(filename)
+    if CFG["use_relpath"]:
+        filename = os.path.relpath(filename)
     else:
-        return os.path.abspath(filename)
+        filename = os.path.abspath(filename)
+    return filename
 
 def remove_output_files():
     """
