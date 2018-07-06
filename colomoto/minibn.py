@@ -1,6 +1,4 @@
 
-from functools import reduce
-
 from colomoto_jupyter import import_colomoto_tool
 from colomoto_jupyter.sessionfiles import new_output_file
 
@@ -22,11 +20,29 @@ class BooleanNetwork(dict):
             elif isinstance(data, dict):
                 for a, f in data.items():
                     self[a] = f
+            else:
+                self.import_data(data)
         for a, f in kwargs.items():
             self[a] = f
 
+    def v(self, name):
+        return self.ba.symbols(name)[0]
     def vars(self, *names):
         return self.ba.symbols(*names)
+
+    def _autobool(self, expr):
+        if isinstance(expr, (bool, int)):
+            return self.ba.TRUE if expr else self.ba.FALSE
+        return expr
+
+    def _normalize_tr(self, tr):
+        for k, v in tr.items():
+            tr[k] = self._autobool(v)
+        return tr
+
+    def rewrite(self, a, tr):
+        tr = self._normalize_tr(tr)
+        self[a] = self[a].subs(tr).simplify()
 
     def _autokey(self, a):
         if isinstance(a, self.ba.Symbol):
@@ -34,12 +50,9 @@ class BooleanNetwork(dict):
         return a
 
     def __setitem__(self, a, f):
-        if isinstance(f, int):
-            f = f > 0
-        if isinstance(f, bool):
-            f = self.ba.TRUE if f else self.ba.FALSE
         if isinstance(f, str):
             f = self.ba.parse(f)
+        f = self._autobool(f)
         return super(BooleanNetwork, self).__setitem__(self._autokey(a), f)
 
     def __getitem__(self, a):
@@ -114,6 +127,9 @@ class MVVar(boolean.Symbol):
         if self.is_instanciated():
             return self.obj[0]
         return self
+    def level(self):
+        assert self.is_instanciated()
+        return self.obj[1]
     def __str__(self):
         if self.is_instanciated():
             return "{}:{}".format(*self.obj)
@@ -147,6 +163,33 @@ class MultiValuedNetwork(BooleanNetwork):
         elif isinstance(spec, boolean.Expression):
             return [(va, spec)]
         return spec
+
+    def rewrite(self, a, tr):
+        tr = self._normalize_tr(tr)
+        k = self._autokey(a.nodevar())
+        spec = self[k]
+        def _rewrite(expr):
+            return expr.subs(tr).simplify()
+        if isinstance(spec, boolean.Expression):
+            super(MultiValuedNetwork, self).rewrite(k, tr)
+        elif isinstance(spec, dict):
+            if a.is_instanciated():
+                spec[a.level()] = _rewrite(spec[a.level()])
+            else:
+                for k, f in spec.items():
+                    spec[k] = _rewrite(f)
+        else:
+            if a.is_instanciated():
+                def d_rewrite(df):
+                    (d,f) = df
+                    if d == a:
+                        f = _rewrite(f)
+                    return (d,f)
+            else:
+                def d_rewrite(df):
+                    (d,f) = df
+                    return (d, _rewrite(f))
+            self[a] = list(map(d_rewrite, self[k]))
 
     def append(self, a, f):
         if isinstance(a, str):
