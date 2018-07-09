@@ -26,6 +26,7 @@ requirements:
   run:
     - python
     - beautifulsoup4
+    - boolean.py
     - networkx >=2.0
     - pydot >=1.2.3
     - pygraphviz
