@@ -88,7 +88,7 @@ class BooleanNetwork(dict):
             self[left] = self.ba.parse(right)
 
     def __repr__(self):
-        return self.source(sep="\t<- ")
+        return self.source(sep=" <- ")
 
     @classmethod
     def load(celf, filename):
@@ -200,7 +200,7 @@ class MultiValuedNetwork(BooleanNetwork):
         self[k] = self._normalize(k, self[k]) if k in self else []
         self[k].append((a, f))
 
-    def source(self, sep="\t<- "):
+    def source(self, sep=" <- "):
         buf = ""
         for a, f in sorted(self.items()):
             for d, g in self._normalize(a, f):
