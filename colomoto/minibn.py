@@ -135,7 +135,7 @@ class MVVar(boolean.Symbol):
             return "{}:{}".format(*self.obj)
         else:
             return "{}".format(self.obj)
-    def __mod__(self, i):
+    def __truediv__(self, i):
         assert not self.is_instanciated() and isinstance(i, int), repr(self.obj)
         return self.Symbol((self.obj, i))
     def __lt__(a, b):
@@ -145,11 +145,11 @@ class MVVar(boolean.Symbol):
                 return mv.obj if mv.is_instanciated() else (mv.obj, 1)
             return getobj(a) < getobj(b)
         if isinstance(b, int):
-            return ~(a % b)
+            return ~(a / b)
         raise NotImplemented
     def __ge__(a, b):
         assert isinstance(a, MVVar) and isinstance(b, int)
-        return a%b
+        return a/b
 
 class MultiValuedNetwork(BooleanNetwork):
     biolqm_format = "mnet"
@@ -159,7 +159,7 @@ class MultiValuedNetwork(BooleanNetwork):
     def _normalize(self, a, spec):
         (va,) = self.vars(a)
         if isinstance(spec, dict):
-            return [(va%i, f)  for i, f in sorted(spec.items())]
+            return [(va/i, f)  for i, f in sorted(spec.items())]
         elif isinstance(spec, boolean.Expression):
             return [(va, spec)]
         return spec
