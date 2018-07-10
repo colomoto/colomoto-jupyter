@@ -88,7 +88,7 @@ class BooleanNetwork(dict):
             self[left] = self.ba.parse(right)
 
     def __repr__(self):
-        return self.source(sep=" <- ")
+        return self.source(sep="\t<- ")
 
     @classmethod
     def load(celf, filename):
@@ -189,7 +189,7 @@ class MultiValuedNetwork(BooleanNetwork):
                 def d_rewrite(df):
                     (d,f) = df
                     return (d, _rewrite(f))
-            self[a] = list(map(d_rewrite, self[k]))
+            self[k] = list(map(d_rewrite, self[k]))
 
     def append(self, a, f):
         if isinstance(a, str):
@@ -200,7 +200,7 @@ class MultiValuedNetwork(BooleanNetwork):
         self[k] = self._normalize(k, self[k]) if k in self else []
         self[k].append((a, f))
 
-    def source(self, sep=" <- "):
+    def source(self, sep="\t<- "):
         buf = ""
         for a, f in sorted(self.items()):
             for d, g in self._normalize(a, f):
