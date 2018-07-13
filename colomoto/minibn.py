@@ -164,6 +164,8 @@ class MVVar(boolean.Symbol):
         if isinstance(a, MVVar) and isinstance(b, int):
             return ~(a/b) | (a/(b+1))
         return super(MVVar, a).__eq__(b)
+    def __hash__(self):
+        return super(MVVar, self).__hash__()
 
 class MultiValuedNetwork(BooleanNetwork):
     biolqm_format = "mnet"
