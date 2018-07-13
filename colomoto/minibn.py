@@ -147,9 +147,23 @@ class MVVar(boolean.Symbol):
         if isinstance(b, int):
             return ~(a / b)
         raise NotImplemented
+    def __le__(a, b):
+        assert isinstance(a, MVVar) and isinstance(b, int)
+        return ~(a/(b+1))
+    def __gt__(a, b):
+        assert isinstance(a, MVVar) and isinstance(b, int)
+        return a/(b+1)
     def __ge__(a, b):
         assert isinstance(a, MVVar) and isinstance(b, int)
         return a/b
+    def __eq__(a, b):
+        if isinstance(a, MVVar) and isinstance(b, int):
+            return (a/b) & ~(a/(b+1))
+        return super(MVVar, a).__eq__(b)
+    def __ne__(a, b):
+        if isinstance(a, MVVar) and isinstance(b, int):
+            return ~(a/b) | (a/(b+1))
+        return super(MVVar, a).__eq__(b)
 
 class MultiValuedNetwork(BooleanNetwork):
     biolqm_format = "mnet"
