@@ -82,14 +82,22 @@ class CellCollectiveSBMLModel(object):
         if not ps:
             return metadata
         htmldata = BeautifulSoup(ps[0].firstChild.wholeText, "html.parser")
-        divs = htmldata.find_all("div")
-        for div in divs:
-            t = div.getText().split(":")
+
+        def parse_statement(data):
+            t = data.split(":")
             if len(t) == 2:
                 key = t[0].strip().replace(" ","").lower()
                 value = t[1].strip()
                 if key in self._key2metadata:
                     metadata[self._key2metadata[key]] = value
+
+        divs = htmldata.find_all("div")
+        for div in divs:
+            parse_statement(div.getText())
+        if not divs:
+            for p in ps:
+                parse_statement(p.firstChild.wholeText)
+
         return metadata
 
     def species_uniprotkb(self, name):
