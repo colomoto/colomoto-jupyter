@@ -13,19 +13,23 @@ except:
     from urllib import urlretrieve
     from urllib2 import urlopen
 
+##
+# Setup PATH env for custom colomoto installations
+#
 if platform.system() == "Windows":
     PREFIXES = [os.getenv("APPDATA"), "colomoto"]
+    binpaths = [os.path.join(p,"bin") for p in PREFIXES] \
+                + [os.path.join(p,"Library","bin") for p in PREFIXES]
 else:
     PREFIXES = ["/usr/local/share/colomoto",
         os.path.join(os.path.expanduser("~"), ".local", "share", "colomoto")]
+    binpaths = [os.path.join(p, "bin") for p in PREFIXES]
 
-paths = ":".join([os.path.join(p,"bin") for p in PREFIXES if
-                os.path.exists(os.path.join(p, "bin"))])
-os.environ["PATH"] = "%s:%s" % (paths, os.environ["PATH"])
-libpaths = [os.path.join(p,"lib") for p in PREFIXES if
-                os.path.exists(os.path.join(p, "lib"))]
-os.environ["LD_LIBRARY_PATH"] = ":".join(libpaths +
-        os.environ.get("LD_LIBRARY_PATH", "").split(":"))
+binpaths = [p for p in binpaths if os.path.exists(p)]
+if binpaths:
+    os.environ["PATH"] = "%s:%s" % (":".join(binpaths), os.environ["PATH"])
+#
+##
 
 def conda_package_url(name, version=None, label="main"):
     system = platform.system().lower()
@@ -63,15 +67,10 @@ def conda_package_extract(conda_url, prefix):
         return m.name.split('/')[0] != 'info'
     with tarfile.open(localfile, "r:%s"%fmt) as tar:
         for m in tar:
-            if m.isreg() and match_member(m):
+            if match_member(m):
                 dest = os.path.join(prefix, m.name)
-                fd = tar.extractfile(m)
                 print("installing %s" % dest)
-                prepare_dest(dest)
-                with open(dest, "wb") as o:
-                    o.write(fd.read())
-                fd.close()
-                os.chmod(dest, m.mode)
+                tar.extract(m, prefix)
     os.unlink(localfile)
 
 def is_installed(progname):
