@@ -117,3 +117,10 @@ def setup(*specs):
         pkg = conda_package_url(spec["pkg"])
         conda_package_extract(pkg, prefix)
 
+PKG = {
+    "clingo": {"pkg": "colomoto/clingo", "check_progs": ["clingo"]},
+    "ginsim", {"pkg", "colomoto/ginsim", "check_progs": ["GINsim"]},
+    "nusmv": {"pkg": "colomoto/nusmv", "check_progs": ["NuSMV"]},
+    "its": {"pkg": "colomoto/its", "check_progs": ["its-reach"]},
+}
+
