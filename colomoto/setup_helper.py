@@ -101,8 +101,9 @@ def setup(*specs):
     args = parser.parse_args()
     prefix = installation_prefix()
     for spec in specs:
+        name = spec["pkg"].split('/')[-1]
         if not args.force:
-            print("# checking for {}".format(spec["pkg"]))
+            print("# checking for {}".format(name))
             skip = True
             for prog in spec.get("check_progs", []):
                 if not is_installed(prog):
@@ -111,7 +112,7 @@ def setup(*specs):
             if skip and "check_install" in spec:
                 skip = spec["check_install"]()
             if skip:
-                print("# {} is already installed.".format(spec["pkg"]))
+                print("# {} is already installed.".format(name))
                 continue
         print("# installing {} in {}".format(spec["pkg"], prefix))
         pkg = conda_package_url(spec["pkg"])
@@ -119,7 +120,7 @@ def setup(*specs):
 
 PKG = {
     "clingo": {"pkg": "colomoto/clingo", "check_progs": ["clingo"]},
-    "ginsim", {"pkg", "colomoto/ginsim", "check_progs": ["GINsim"]},
+    "ginsim": {"pkg": "colomoto/ginsim", "check_progs": ["GINsim"]},
     "nusmv": {"pkg": "colomoto/nusmv", "check_progs": ["NuSMV"]},
     "its": {"pkg": "colomoto/its", "check_progs": ["its-reach"]},
 }
