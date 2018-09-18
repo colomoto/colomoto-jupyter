@@ -87,6 +87,9 @@ def installation_prefix():
         return PREFIXES[-1]
 
 def setup(*specs):
+    if os.path.exists(os.path.join(sys.prefix, 'conda-meta')):
+        print("You seem to be within a conda environment, nothing to do.")
+        return
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("-f", "--force", default=False, action="store_true",
