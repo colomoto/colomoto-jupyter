@@ -19,8 +19,13 @@ else:
     PREFIXES = ["/usr/local/share/colomoto",
         os.path.join(os.path.expanduser("~"), ".local", "share", "colomoto")]
 
-paths = ":".join([os.path.join(p,"bin") for p in PREFIXES if os.path.exists(p)])
+paths = ":".join([os.path.join(p,"bin") for p in PREFIXES if
+                os.path.exists(os.path.join(p, "bin"))])
 os.environ["PATH"] = "%s:%s" % (paths, os.environ["PATH"])
+libpaths = [os.path.join(p,"lib") for p in PREFIXES if
+                os.path.exists(os.path.join(p, "lib"))]
+os.environ["LD_LIBRARY_PATH"] = ":".join(libpaths +
+        os.environ.get("LD_LIBRARY_PATH", "").split(":"))
 
 def conda_package_url(name, version=None, label="main"):
     system = platform.system().lower()
@@ -50,12 +55,12 @@ def prepare_dest(dest):
     if not os.path.exists(destdir):
         os.makedirs(destdir)
 
-def conda_package_extract(conda_url, prefix, subdirs=['bin','opt']):
+def conda_package_extract(conda_url, prefix):
     print("downloading {}".format(conda_url))
     localfile = urlretrieve(conda_url)[0]
     fmt = conda_url.split(".")[-1]
     def match_member(m):
-        return m.name.split('/')[0] in subdirs
+        return m.name.split('/')[0] != 'info'
     with tarfile.open(localfile, "r:%s"%fmt) as tar:
         for m in tar:
             if m.isreg() and match_member(m):
