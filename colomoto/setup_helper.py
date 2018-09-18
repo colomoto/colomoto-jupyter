@@ -116,6 +116,9 @@ def setup(*specs):
                 continue
         print("# installing {} in {}".format(spec["pkg"], prefix))
         pkg = conda_package_url(spec["pkg"])
+        if pkg is None:
+            print("Error: no package found for your system!")
+            continue
         conda_package_extract(pkg, prefix)
 
 PKG = {
