@@ -3,6 +3,8 @@ import os
 import subprocess
 import tempfile
 
+import colomoto.setup_helper
+
 class CmdError(subprocess.CalledProcessError):
     def __str__(self):
         stderr = "\n%s" % self.stderr.decode()
