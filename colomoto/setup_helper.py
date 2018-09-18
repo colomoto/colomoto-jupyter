@@ -19,7 +19,7 @@ else:
     PREFIXES = ["/usr/local/share/colomoto",
         os.path.join(os.path.expanduser("~"), ".local", "share", "colomoto")]
 
-paths = ":".join([p for p in PREFIXES if os.path.exists(p)])
+paths = ":".join([os.path.join(p,"bin") for p in PREFIXES if os.path.exists(p)])
 os.environ["PATH"] = "%s:%s" % (paths, os.environ["PATH"])
 
 def conda_package_url(name, version=None, label="main"):
