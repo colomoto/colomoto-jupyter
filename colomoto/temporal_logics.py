@@ -115,7 +115,7 @@ def nusmv_of_expr(e, tr):
 
 
 __all__ = ["If", "S", "ModelState",
-    "F", "G", "U",
-    "EF", "AF", "EG", "AG", "EU", "AU",
+    "F", "G", "U", "X",
+    "EF", "AF", "EG", "AG", "EU", "AU", "EX", "AX",
     "nusmv_of_expr"]
 
