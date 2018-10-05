@@ -9,7 +9,27 @@ It currently provides:
 * interactive file upload
 * formatter for ``networkx`` graphs
 
+In addition, it provides simple python interfaces for the following tools:
+* CellCollective
+* NuSMV
+
 See also https://github.com/colomoto/colomoto-docker.
+
+## Installation
+
+### With conda
+
+```
+conda install -c colomoto colomoto_jupyter
+```
+
+### With pip
+
+```
+pip install colomoto_jupyter
+python -m nusmv_setup
+```
+
 
 ## Quick usage guide
 
