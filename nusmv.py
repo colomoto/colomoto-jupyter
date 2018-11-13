@@ -25,7 +25,7 @@ class NuSMV(object):
             "coi": True,
         }
 
-    def check_output(self):
+    def check_output(self, timeout=None):
         """
         Call NuSMV and returns the content of stdout
         """
@@ -49,7 +49,8 @@ class NuSMV(object):
         args.append(input_file)
 
         try:
-            output = subprocess.check_output(args, stderr=subprocess.PIPE).decode().strip()
+            output = subprocess.check_output(args, stderr=subprocess.PIPE,
+                        timeout=timeout).decode().strip()
         except subprocess.CalledProcessError as e:
             raise CmdError(e.returncode, e.cmd, e.output, e.stderr) from None
         finally:
@@ -57,7 +58,7 @@ class NuSMV(object):
                 os.unlink(input_file)
         return output
 
-    def _parse_output(self, output):
+    def _parse_output(self, output, as_dict=True):
         results = []
         for line in output.split("\n"):
             if not line.startswith("-- specification "):
@@ -65,20 +66,23 @@ class NuSMV(object):
             parts = line.split()
             valid = True if parts[-1] == "true" else False
             spec = " ".join(parts[2:-2])
-            results.append((spec, valid))
+            results.append((spec, valid) if as_dict else valid)
 
-        if self.__custom_specs:
+        if as_dict and self.__custom_specs:
             nc = len(self.__custom_specs)
             results = results[:-nc] \
                 + list(zip(self.__custom_specs, [valid for (_,valid) in results[-nc:]]))
 
-        return NuSMVResults(results)
+        if as_dict:
+            return NuSMVResults(results)
+        else:
+            return results
 
-    def verify(self):
+    def verify(self, timeout=None, as_dict=True):
         output = self.check_output()
-        return self._parse_output(output)
+        return self._parse_output(output, as_dict=as_dict)
 
-    def alltrue(self):
+    def alltrue(self, timeout=None):
         return self.verify().alltrue()
 
     def add_instruction(self, line):
