@@ -28,6 +28,7 @@ conda install -c colomoto colomoto_jupyter
 ```
 pip install colomoto_jupyter
 python -m nusmv_setup
+python -m itstools_setup
 ```
 
 
