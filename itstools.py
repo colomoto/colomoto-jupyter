@@ -46,13 +46,13 @@ class ITSModel(object):
                 return res[-1] == "true."
         raise ValueError("Cannot parse output of its-reach ({})".format(output))
 
-    def count_reachable(self, timeout=None):
+    def count_reachable(self, timeout=None, raw_args=[]):
         """
         :keyword int timeout: timeout in seconds
         :returns: the number of reachable states
         """
         args = ["its-reach", "-i", self.model_file, "-t", self.file_type,
-                "--fixpass", "0", "--quiet"]
+                "--fixpass", "0", "--quiet"] + raw_args
         output = check_output(args, timeout=timeout)
         for line in output.split("\n"):
             if line.startswith(" Total reachable state count : "):
@@ -60,7 +60,7 @@ class ITSModel(object):
                 return int(res[-1])
         raise ValueError("Cannot parse output of its-reach ({})".format(output))
 
-    def verify_ctls(self, specs, timeout=None):
+    def verify_ctls(self, specs, timeout=None, raw_args=[]):
         if isinstance(specs, dict):
             keys = []
             ctls = []
@@ -76,7 +76,7 @@ class ITSModel(object):
             for ctl in ctls:
                 out.write("{};\n".format(ctl))
         args = ["its-ctl", "-i", self.model_file, "-t", self.file_type,
-                    "-ctl", ctl_file, "--quiet"]
+                    "-ctl", ctl_file, "--quiet"] + raw_args
         try:
             output = check_output(args, timeout=timeout)
         finally:
@@ -91,7 +91,7 @@ class ITSModel(object):
             return dict(zip(keys, res))
         return res
 
-    def verify_ctl(self, ctl_expr, timeout=None):
-        return self.verify_ctls([ctl_expr], timeout=None)[0]
+    def verify_ctl(self, ctl_expr, **opts):
+        return self.verify_ctls([ctl_expr], **opts)[0]
 
 
