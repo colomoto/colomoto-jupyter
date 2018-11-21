@@ -114,8 +114,48 @@ def nusmv_of_expr(e, tr):
     return to_nusmv(e)
 
 
+def its_of_expr(e, tr):
+    def to_its(e):
+        op = e.__class__.__name__
+        if isinstance(e, str):
+            return e
+        elif isinstance(e, (ModelState, dict)):
+            def its_of_ai(ai):
+                a, i = ai
+                if isinstance(i, (tuple, set, list)):
+                    return "({})".format(" | ".join([tr((a,j)) for j in i]))
+                else:
+                    return tr(ai)
+            return " && ".join(map(its_of_ai, e.items()))
+        elif isinstance(e, UnaryOperator):
+            arg = to_its(e.arg)
+            if isinstance(e, Not):
+                return "!({})".format(arg)
+            elif isinstance(e, S):
+                return arg
+            else:
+                return "{} ({})".format(op, arg)
+        elif isinstance(e, BinaryOperator):
+            right = to_its(e.right)
+            left = to_its(e.left)
+            if isinstance(e, And):
+                tmpl = "({}) && ({})"
+            elif isinstance(e, Or):
+                tmpl = "({}) || ({})"
+            elif isinstance(e, If):
+                tmpl = "({}) -> ({})"
+            elif isinstance(e, EU):
+                tmpl = "E(({}) U ({}))"
+            elif isinstance(e, AU):
+                tmpl = "A(({}) U ({}))"
+            return tmpl.format(left, right)
+        else:
+            raise NotImplementedError
+    return to_its(e)
+
+
 __all__ = ["If", "S", "ModelState",
     "F", "G", "U", "X",
     "EF", "AF", "EG", "AG", "EU", "AU", "EX", "AX",
-    "nusmv_of_expr"]
+    "nusmv_of_expr", "its_of_expr"]
 
