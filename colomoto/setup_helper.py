@@ -125,6 +125,6 @@ PKG = {
     "clingo": {"pkg": "colomoto/clingo", "check_progs": ["clingo"]},
     "ginsim": {"pkg": "colomoto/ginsim", "check_progs": ["GINsim"]},
     "nusmv": {"pkg": "colomoto/nusmv", "check_progs": ["NuSMV"]},
-    "its": {"pkg": "colomoto/its", "check_progs": ["its-reach"]},
+    "its": {"pkg": "colomoto/its", "check_progs": ["its-reach", "its-ctl"]},
 }
 
