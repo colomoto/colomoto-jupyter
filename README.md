@@ -10,8 +10,9 @@ It currently provides:
 * formatter for ``networkx`` graphs
 
 In addition, it provides simple python interfaces for the following tools:
-* CellCollective
-* NuSMV
+* CellCollective (model repository and knowledge base) - http://cellcollective.org
+* ITS-Tools (model checker) - https://lip6.github.io/ITSTools-web/
+* NuSMV (model checker) - http://nusmv.fbk.eu/
 
 See also https://github.com/colomoto/colomoto-docker.
 
