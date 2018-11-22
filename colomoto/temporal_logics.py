@@ -123,7 +123,7 @@ def its_of_expr(e, tr):
             def its_of_ai(ai):
                 a, i = ai
                 if isinstance(i, (tuple, set, list)):
-                    return "({})".format(" | ".join([tr((a,j)) for j in i]))
+                    return "({})".format(" || ".join([tr((a,j)) for j in i]))
                 else:
                     return tr(ai)
             return " && ".join(map(its_of_ai, e.items()))
