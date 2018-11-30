@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 NAME = "colomoto_jupyter"
 
 setup(name=NAME,
-    version='0.5.0',
+    version='0.5.1',
     author = "Loïc Paulevé",
     author_email = "loic.pauleve@ens-cachan.org",
     url = "https://github.com/colomoto/colomoto-jupyter",
@@ -26,7 +26,9 @@ See https://github.com/colomoto/colomoto-jupyter
     license="LGPL v3+/CeCILL-C",
     include_package_data = True,
     packages = find_packages(),
-    py_modules = ["cellcollective", "nusmv", "nusmv_setup"],
+    py_modules = ["cellcollective",
+        "itstools", "itstools_setup",
+        "nusmv", "nusmv_setup"],
     classifiers=[
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
