@@ -112,7 +112,7 @@ if IN_IPYTHON:
                 "showindex": "always"
             }
             defaults.update(kwargs)
-            return Markdown(tabulate(*args, **defaults))
+            return Markdown(_tabulate(*args, **defaults))
     except ImportError:
         pass
 
