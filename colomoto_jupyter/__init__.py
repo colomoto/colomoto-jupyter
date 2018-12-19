@@ -106,10 +106,8 @@ if IN_IPYTHON:
     try:
         from tabulate import tabulate as _tabulate
         def tabulate(*args, **kwargs):
-            if "tablefmt" in kwargs:
-                return _tabulate(*args, **kwargs)
             defaults = {
-                "tablefmt": "pipe",
+                "tablefmt": "html",
                 "headers": "keys",
                 "showindex": "always"
             }
