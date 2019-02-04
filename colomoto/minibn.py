@@ -9,9 +9,10 @@ class NOT(boolean.NOT):
         super(NOT, self).__init__(*args)
         self.operator = "!"
 
-class BooleanNetwork(dict):
+
+class BaseNetwork(dict):
     def __init__(self, data=None, Symbol_class=boolean.Symbol, **kwargs):
-        super(BooleanNetwork, self).__init__()
+        super(BaseNetwork, self).__init__()
         self.ba = boolean.BooleanAlgebra(NOT_class=NOT,
             Symbol_class=Symbol_class)
         if data:
@@ -25,39 +26,70 @@ class BooleanNetwork(dict):
         for a, f in kwargs.items():
             self[a] = f
 
+    def import_data(self, data):
+        raise NotImplementedError
+    def source(self, sep):
+        raise NotImplementedError
+    def __repr__(self):
+        return self.source(sep=" <- ")
+
+    @classmethod
+    def load(celf, filename):
+        f = celf()
+        with open(filename) as data:
+            f.import_data(data)
+        return f
+
+
     def v(self, name):
         return self.ba.symbols(name)[0]
     def vars(self, *names):
         return self.ba.symbols(*names)
-
-    def _autobool(self, expr):
-        if isinstance(expr, (bool, int)):
-            return self.ba.TRUE if expr else self.ba.FALSE
-        return expr
-
-    def _normalize_tr(self, tr):
-        for k, v in tr.items():
-            tr[k] = self._autobool(v)
-        return tr
-
-    def rewrite(self, a, tr):
-        tr = self._normalize_tr(tr)
-        self[a] = self[a].subs(tr).simplify()
 
     def _autokey(self, a):
         if isinstance(a, self.ba.Symbol):
             a = a.obj
         return a
 
+    def _autobool(self, expr):
+        if isinstance(expr, bool):
+            return self.ba.TRUE if expr else self.ba.FALSE
+        elif isinstance(expr, int):
+            return self.ba.TRUE if expr > 0 else self.ba.FALSE
+        return expr
+
+    def _normalize_tr(self, tr):
+        ntr = {}
+        for k, v in tr.items():
+            if not isinstance(k, self.ba.Symbol):
+                k = self.v(k)
+            ntr[k] = self._autobool(v)
+        return ntr
+
+    def rewrite(self, a, tr):
+        tr = self._normalize_tr(tr)
+        self[a] = self[a].subs(tr).simplify()
+
     def __setitem__(self, a, f):
         if isinstance(f, str):
             f = self.ba.parse(f)
         f = self._autobool(f)
-        return super(BooleanNetwork, self).__setitem__(self._autokey(a), f)
+        return super(BaseNetwork, self).__setitem__(self._autokey(a), f)
 
     def __getitem__(self, a):
-        return super(BooleanNetwork, self).__getitem__(self._autokey(a))
+        return super(BaseNetwork, self).__getitem__(self._autokey(a))
 
+    biolqm_format = None
+    def to_biolqm(self):
+        bnfile = new_output_file(ext=self.biolqm_format)
+        with open(bnfile, "w") as f:
+            f.write(self.source())
+        biolqm = import_colomoto_tool("biolqm")
+        return biolqm.load(bnfile)
+
+class BooleanNetwork(BaseNetwork):
+
+    biolqm_format = "bnet"
     def source(self, sep=", "):
         buf = ""
         for a, f in sorted(self.items()):
@@ -87,28 +119,29 @@ class BooleanNetwork(dict):
                 continue
             self[left] = self.ba.parse(right)
 
-    def __repr__(self):
-        return self.source(sep=" <- ")
-
-    @classmethod
-    def load(celf, filename):
-        f = celf()
-        with open(filename) as data:
-            f.import_data(data)
-        return f
-
-    biolqm_format = "bnet"
-    def to_biolqm(self):
-        bnfile = new_output_file(ext=self.biolqm_format)
-        with open(bnfile, "w") as f:
-            f.write(self.source())
-        biolqm = import_colomoto_tool("biolqm")
-        return biolqm.load(bnfile)
+    def influence_graph(self):
+        import networkx as nx
+        influences = set()
+        ig = nx.DiGraph()
+        for a, f in self.items():
+            ig.add_node(a)
+            for lit in f.literalize().get_literals():
+                if isinstance(lit, boolean.NOT):
+                    b = lit.args[0].obj
+                    sign = -1
+                else:
+                    b = lit.obj
+                    sign = 1
+                influences.add((b,a,sign))
+        for (b, a, sign) in influences:
+            ig.add_edge(b, a, sign=sign, label="+" if sign > 0 else "-")
+        return ig
 
     def to_pint(self):
         pypint = import_colomoto_tool("pypint")
         from pypint.converters import import_minibn
         return import_minibn(self)
+
 
 class MVVar(boolean.Symbol):
     def __init__(self, obj):
@@ -167,7 +200,7 @@ class MVVar(boolean.Symbol):
     def __hash__(self):
         return super(MVVar, self).__hash__()
 
-class MultiValuedNetwork(BooleanNetwork):
+class MultiValuedNetwork(BaseNetwork):
     biolqm_format = "mnet"
     def __init__(self, *args, **kwargs):
         super(MultiValuedNetwork, self).__init__(*args, **kwargs, Symbol_class=MVVar)
