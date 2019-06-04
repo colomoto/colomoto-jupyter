@@ -32,7 +32,9 @@ def wui_sources(name, label=None, color=None, menu=None, toolbar=None, js_api={}
     }}
     """.format(**args) if toolbar else ""
 
-    src_css = '<style type="text/css">%s%s</style>' % (menu_css, toolbar_css)
+    src_css = ""
+    if toolbar or menu:
+        src_css = '<style type="text/css">%s%s</style>' % (menu_css, toolbar_css)
 
     js_api = ",\n".join(["%s: %s" % item for item in js_api.items()])
 

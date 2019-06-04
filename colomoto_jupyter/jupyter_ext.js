@@ -298,8 +298,9 @@ function colomoto_extension(Jupyter, ssid, name, menu, toolbar, tool_api) {
         }
 
         $("#"+name+"_menu").parent().remove();
-        menu_setup([menu], $("#help_menu").parent(), true);
-
+        if (menu) {
+            menu_setup([menu], $("#help_menu").parent(), true);
+        }
 
         if (tool_api.hasOwnProperty("post_install_callback")) {
             tool_api.post_install_callback();
