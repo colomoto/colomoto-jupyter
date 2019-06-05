@@ -13,7 +13,7 @@ from colomoto_jupyter import *
 if IN_IPYTHON:
     from IPython.display import Markdown
 
-urlidentifier = re.compile("https?://[^/]*\\bcellcollective\.org/#(\\d+)\\b")
+urlidentifier = re.compile("https?://[^/]*\\bcellcollective\.org/[^/]*#(\\d+)\\b")
 
 def id_from_url(url):
     uri = urlparse(url)
@@ -121,7 +121,8 @@ def load(identifier):
     elif url_matches(identifier):
         conn = CellCollectiveConnector(identifier)
     else:
-        sbmlfile = identifier
+        from colomoto_jupyter.io import ensure_localfile
+        sbmlfile = ensure_localfile(identifier)
     if conn:
         from colomoto_jupyter.io import download
         url = conn.sbml_url
