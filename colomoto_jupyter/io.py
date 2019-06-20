@@ -10,7 +10,7 @@ import cellcollective
 
 def download(url, suffix=None):
     filename = new_output_file(suffix=suffix)
-    info("Downloading '%s'" % url)
+    info("Downloading %s" % url)
     filename, _ = urlretrieve(url, filename=filename)
     return filename
 
