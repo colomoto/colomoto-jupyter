@@ -1,8 +1,12 @@
 
 from colomoto_jupyter import import_colomoto_tool
 from colomoto_jupyter.sessionfiles import new_output_file
+from colomoto_jupyter import IN_IPYTHON, jupyter_setup
 
 import boolean
+
+if IN_IPYTHON:
+    jupyter_setup("minibn", label="miniBN")
 
 class NOT(boolean.NOT):
     def __init__(self, *args):
