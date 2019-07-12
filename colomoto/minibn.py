@@ -1,4 +1,6 @@
 
+import copy
+
 from colomoto_jupyter import import_colomoto_tool
 from colomoto_jupyter.sessionfiles import new_output_file
 from colomoto_jupyter import IN_IPYTHON, jupyter_setup
@@ -83,6 +85,11 @@ class BaseNetwork(dict):
     def __getitem__(self, a):
         return super(BaseNetwork, self).__getitem__(self._autokey(a))
 
+    def copy(self):
+        bn = copy.copy(self)
+        bn.ba = self.ba
+        return bn
+
     biolqm_format = None
     def to_biolqm(self):
         bnfile = new_output_file(ext=self.biolqm_format)
@@ -140,6 +147,22 @@ class BooleanNetwork(BaseNetwork):
         for (b, a, sign) in influences:
             ig.add_edge(b, a, sign=sign, label="+" if sign > 0 else "-")
         return ig
+
+    def propagate_constants(self):
+        bn = self.copy()
+        csts = dict([(i,f) for i, f in bn.items() if f is self.ba.TRUE or f is self.ba.FALSE])
+        while csts:
+            new_csts = {}
+            for a in bn.keys():
+                if a in csts:
+                    continue
+                bn.rewrite(a, csts)
+                if bn[a] is bn.ba.TRUE or bn[a] is bn.ba.FALSE:
+                    new_csts[a] = bn[a]
+            for a in csts:
+                del bn[a]
+            csts = new_csts
+        return bn
 
     def to_pint(self):
         pypint = import_colomoto_tool("pypint")
