@@ -12,6 +12,7 @@ except:
     # Python 2
     from urllib import urlretrieve
     from urllib2 import urlopen
+from colomoto_jupyter import IN_IPYTHON
 
 ##
 # Setup PATH env for custom colomoto installations
@@ -94,11 +95,18 @@ def setup(*specs):
     if os.path.exists(os.path.join(sys.prefix, 'conda-meta')):
         print("You seem to be within a conda environment, nothing to do.")
         return
-    from argparse import ArgumentParser
-    parser = ArgumentParser()
-    parser.add_argument("-f", "--force", default=False, action="store_true",
-            help="Force installation")
-    args = parser.parse_args()
+
+    from argparse import ArgumentParser, Namespace
+
+    if IN_IPYTHON:
+        args = Namespace()
+        args.force = False
+    else:
+        parser = ArgumentParser()
+        parser.add_argument("-f", "--force", default=False, action="store_true",
+                help="Force installation")
+        args = parser.parse_args()
+
     prefix = installation_prefix()
     for spec in specs:
         name = spec["pkg"].split('/')[-1]
