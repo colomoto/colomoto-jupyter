@@ -12,13 +12,13 @@ if IN_IPYTHON:
 
 class NOT(boolean.NOT):
     def __init__(self, *args):
-        super(NOT, self).__init__(*args)
+        super().__init__(*args)
         self.operator = "!"
 
 
 class BaseNetwork(dict):
     def __init__(self, data=None, Symbol_class=boolean.Symbol, **kwargs):
-        super(BaseNetwork, self).__init__()
+        super().__init__()
         self.ba = boolean.BooleanAlgebra(NOT_class=NOT,
             Symbol_class=Symbol_class)
         if data:
@@ -80,10 +80,10 @@ class BaseNetwork(dict):
         if isinstance(f, str):
             f = self.ba.parse(f)
         f = self._autobool(f)
-        return super(BaseNetwork, self).__setitem__(self._autokey(a), f)
+        return super().__setitem__(self._autokey(a), f)
 
     def __getitem__(self, a):
-        return super(BaseNetwork, self).__getitem__(self._autokey(a))
+        return super().__getitem__(self._autokey(a))
 
     def copy(self):
         bn = copy.copy(self)
@@ -149,15 +149,16 @@ class BooleanNetwork(BaseNetwork):
         return ig
 
     def propagate_constants(self):
+        csttypes = [boolean.boolean._TRUE, boolean.boolean._FALSE]
         bn = self.copy()
-        csts = dict([(i,f) for i, f in bn.items() if f is self.ba.TRUE or f is self.ba.FALSE])
+        csts = dict([(i,f) for i, f in bn.items() if type(f) in csttypes])
         while csts:
             new_csts = {}
             for a in bn.keys():
                 if a in csts:
                     continue
                 bn.rewrite(a, csts)
-                if bn[a] is bn.ba.TRUE or bn[a] is bn.ba.FALSE:
+                if type(bn[a]) in csttypes:
                     new_csts[a] = bn[a]
             for a in csts:
                 del bn[a]
@@ -180,7 +181,7 @@ class MVVar(boolean.Symbol):
                     obj = (":".join(parts[:-1]), level)
                 except ValueError:
                     pass
-        super(MVVar, self).__init__(obj)
+        super().__init__(obj)
     def is_instanciated(self):
         return isinstance(self.obj, tuple)
     def nodevar(self):
@@ -219,18 +220,18 @@ class MVVar(boolean.Symbol):
     def __eq__(a, b):
         if isinstance(a, MVVar) and isinstance(b, int):
             return (a/b) & ~(a/(b+1))
-        return super(MVVar, a).__eq__(b)
+        return super().__eq__(b)
     def __ne__(a, b):
         if isinstance(a, MVVar) and isinstance(b, int):
             return ~(a/b) | (a/(b+1))
-        return super(MVVar, a).__eq__(b)
+        return super().__eq__(b)
     def __hash__(self):
-        return super(MVVar, self).__hash__()
+        return super().__hash__()
 
 class MultiValuedNetwork(BaseNetwork):
     biolqm_format = "mnet"
     def __init__(self, *args, **kwargs):
-        super(MultiValuedNetwork, self).__init__(*args, **kwargs, Symbol_class=MVVar)
+        super().__init__(*args, **kwargs, Symbol_class=MVVar)
 
     def _normalize(self, a, spec):
         (va,) = self.vars(a)
@@ -247,7 +248,7 @@ class MultiValuedNetwork(BaseNetwork):
         def _rewrite(expr):
             return expr.subs(tr).simplify()
         if isinstance(spec, boolean.Expression):
-            super(MultiValuedNetwork, self).rewrite(k, tr)
+            super().rewrite(k, tr)
         elif isinstance(spec, dict):
             if a.is_instanciated():
                 spec[a.level()] = _rewrite(spec[a.level()])
