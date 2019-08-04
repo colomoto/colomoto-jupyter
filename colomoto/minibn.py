@@ -72,6 +72,12 @@ class BaseNetwork(dict):
             ntr[k] = self._autobool(v)
         return ntr
 
+    def simplify(self):
+        bn = copy.copy(self)
+        for a, f in bn.items():
+            bn[a] = f.simplify()
+        return bn
+
     def rewrite(self, a, tr):
         tr = self._normalize_tr(tr)
         self[a] = self[a].subs(tr).simplify()
@@ -133,10 +139,10 @@ class BooleanNetwork(BaseNetwork):
     def influence_graph(self):
         import networkx as nx
         influences = set()
-        ig = nx.DiGraph()
+        ig = nx.MultiDiGraph()
         for a, f in self.items():
             ig.add_node(a)
-            for lit in f.literalize().get_literals():
+            for lit in f.simplify().literalize().get_literals():
                 if isinstance(lit, boolean.NOT):
                     b = lit.args[0].obj
                     sign = -1
