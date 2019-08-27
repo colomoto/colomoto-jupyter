@@ -132,5 +132,6 @@ def load(identifier):
 
 def to_biolqm(model):
     biolqm = import_colomoto_tool("biolqm")
-    return biolqm.load(model.localfile)
+    lqm = biolqm.load(model.localfile)
+    return biolqm.sanitize(lqm)
 
