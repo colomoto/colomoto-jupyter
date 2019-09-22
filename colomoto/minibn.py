@@ -111,6 +111,9 @@ class BooleanNetwork(BaseNetwork):
             buf += "{}{}{}\n".format(a, sep, f)
         return buf
 
+    def inputs(self):
+        return [a for a, f in self.items() if f == self.v(a)]
+
     def import_data(self, data):
         header = None
         for line in data:
