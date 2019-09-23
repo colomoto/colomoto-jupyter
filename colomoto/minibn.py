@@ -139,6 +139,32 @@ class BooleanNetwork(BaseNetwork):
             bn[a] = f.simplify()
         return bn
 
+    def as_dnf(self):
+        def make_lit(l):
+            if isinstance(l, self.ba.NOT):
+                return (l.args[0].obj, False)
+            else:
+                return (l.obj, True)
+        def make_clause(c):
+            if isinstance(c, self.ba.AND):
+                lits = c.args
+            else:
+                lits = [c]
+            return list(map(make_lit, lits))
+        def make_dnf(f):
+            if f is self.ba.TRUE:
+                return True
+            elif f is self.ba.FALSE:
+                return False
+            clauses = self.ba.dnf(f)
+            if not isinstance(clauses, self.ba.OR):
+                clauses = [clauses]
+            else:
+                clauses = clauses.args
+
+            return list(map(make_clause, clauses))
+        return dict([(i,make_dnf(f)) for (i,f) in self.items()])
+
     def influence_graph(self):
         import networkx as nx
         influences = set()
