@@ -97,12 +97,15 @@ def setup(*specs):
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("-f", "--force", default=False, action="store_true",
-            help="Force installation")
+            help="Force (re)installation of the main dependency")
+    parser.add_argument("-F", "--force-all", default=False, action="store_true",
+            help="Force (re)installation o f all the dependencies")
     args = parser.parse_args()
     prefix = installation_prefix()
+    force = args.force or args.force_all
     for spec in specs:
         name = spec["pkg"].split('/')[-1]
-        if not args.force:
+        if not force:
             print("# checking for {}".format(name))
             skip = True
             for prog in spec.get("check_progs", []):
@@ -120,6 +123,7 @@ def setup(*specs):
             print("Error: no package found for your system!")
             continue
         conda_package_extract(pkg, prefix)
+        force = args.force_all
 
 PKG = {
     "clingo": {"pkg": "colomoto/clingo", "check_progs": ["clingo"]},
