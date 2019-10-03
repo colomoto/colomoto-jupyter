@@ -18,6 +18,7 @@ See https://github.com/colomoto/colomoto-jupyter
     install_requires = [
         "beautifulsoup4",
         "boolean.py",
+        "tabulate",
     ],
     extras_require = {
         "networkx": ["networkx >= 2.0", "pydot", "pygraphviz"],
