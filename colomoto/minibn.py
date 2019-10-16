@@ -17,10 +17,12 @@ class NOT(boolean.NOT):
 
 
 class BaseNetwork(dict):
-    def __init__(self, data=None, Symbol_class=boolean.Symbol, **kwargs):
+    def __init__(self, data=None, Symbol_class=boolean.Symbol,
+            allowed_in_name=('.','_',':','-'), **kwargs):
         super().__init__()
         self.ba = boolean.BooleanAlgebra(NOT_class=NOT,
-            Symbol_class=Symbol_class)
+            Symbol_class=Symbol_class,
+            allowed_in_token=allowed_in_name)
         if data:
             if isinstance(data, str):
                 self.import_data(data.split("\n"))
