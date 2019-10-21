@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 NAME = "colomoto_jupyter"
 
 setup(name=NAME,
-    version='0.5.7',
+    version='0.5.8',
     author = "Loïc Paulevé",
     author_email = "loic.pauleve@ens-cachan.org",
     url = "https://github.com/colomoto/colomoto-jupyter",
