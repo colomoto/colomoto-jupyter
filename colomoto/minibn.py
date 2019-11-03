@@ -74,6 +74,16 @@ class BaseNetwork(dict):
             ntr[k] = self._autobool(v)
         return ntr
 
+    def __call__(self, cfg):
+        tr = self._normalize_tr(cfg)
+        def _autostate(expr):
+            if expr == self.ba.TRUE:
+                return 1
+            elif expr == self.ba.FALSE:
+                return 0
+            return expr
+        return dict([(a, _autostate(self[a].subs(tr).simplify())) for a in self])
+
     def rewrite(self, a, tr):
         tr = self._normalize_tr(tr)
         self[a] = self[a].subs(tr).simplify()
