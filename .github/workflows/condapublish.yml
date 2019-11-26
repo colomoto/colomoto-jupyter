@@ -1,0 +1,19 @@
+name: Publish conda package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Conda publish
+      uses: docker://colomoto/conda-builder:latest
+      with:
+        subdir: "conda"
+        anaconda_username: ${{ secrets.ANACONDA_USERNAME }}
+        anaconda_password: ${{ secrets.ANACONDA_PASSWORD }}
