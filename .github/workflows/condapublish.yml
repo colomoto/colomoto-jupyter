@@ -15,5 +15,5 @@ jobs:
       uses: docker://colomoto/conda-builder:latest
       with:
         subdir: "conda"
-        anaconda_username: ${{ secrets.ANACONDA_USERNAME }}
-        anaconda_password: ${{ secrets.ANACONDA_PASSWORD }}
+        anaconda_user: ${{ secrets.ANACONDA_USER }}
+        anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
