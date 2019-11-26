@@ -14,6 +14,6 @@ jobs:
     - name: Conda publish
       uses: docker://colomoto/conda-builder:latest
       with:
-        subdir: "conda"
-        anaconda_user: ${{ secrets.ANACONDA_USER }}
+        subdir: conda
+        anaconda_user: colomoto
         anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
