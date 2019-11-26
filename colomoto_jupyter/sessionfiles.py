@@ -24,7 +24,7 @@ def preserve_output_files(output_dir="gen"):
     system temporary directory, and do not remove them when the script
     terminates.
     """
-    CFG["output_dir"] = dest
+    CFG["output_dir"] = output_dir
     CFG["autoclean"] = False
 
 def output_dir():
