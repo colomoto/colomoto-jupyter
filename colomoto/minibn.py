@@ -195,6 +195,11 @@ class BooleanNetwork(BaseNetwork):
             ig.add_edge(b, a, sign=sign, label="+" if sign > 0 else "-")
         return ig
 
+    def constants(self):
+        csttypes = [boolean.boolean._TRUE, boolean.boolean._FALSE]
+        return dict([(i,f is self.ba.TRUE) for i,f in self.items() \
+                if type(f) in csttypes])
+
     def propagate_constants(self):
         csttypes = [boolean.boolean._TRUE, boolean.boolean._FALSE]
         bn = self.copy()
