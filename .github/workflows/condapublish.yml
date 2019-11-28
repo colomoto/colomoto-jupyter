@@ -1,9 +1,9 @@
 name: Publish conda package
 
 on:
+  push:
   release:
     types: [created]
-  push
 
 jobs:
   build:
