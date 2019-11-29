@@ -12,8 +12,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: test
-      run: |
-        conda install -y anaconda-client conda-build
-        cd conda
-        conda build -c conda-forge -c colomoto .
+    - name: Conda publish
+      uses: docker://colomoto/conda-builder:latest
+      with:
+        subdir: conda
+        anaconda_user: colomoto
+        anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
