@@ -6,7 +6,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  publish:
 
     runs-on: ubuntu-latest
 
@@ -15,10 +15,4 @@ jobs:
     - name: test
       run: |
         conda install -y anaconda-client conda-build
-        conda build conda
-    - name: Conda publish
-      uses: docker://colomoto/conda-builder:latest
-      with:
-        subdir: conda
-        anaconda_user: colomoto
-        anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
+        conda build -c conda-forge -c colomoto conda
