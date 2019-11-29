@@ -12,6 +12,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: test
+      run: |
+        which conda
+        conda build conda
     - name: Conda publish
       uses: docker://colomoto/conda-builder:latest
       with:
