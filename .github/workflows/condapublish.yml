@@ -16,4 +16,4 @@ jobs:
       run: |
         conda install -y anaconda-client conda-build
         cd conda
-        conda build -c conda-forge -c colomoto conda
+        conda build -c conda-forge -c colomoto .
