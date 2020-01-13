@@ -259,7 +259,9 @@ class MVVar(boolean.Symbol):
             return getobj(a) < getobj(b)
         if isinstance(b, int):
             return ~(a / b)
-        raise NotImplemented
+        if isinstance(b, NOT):
+            return False
+        assert False, "unsupported type {} ({})".format(type(b), b)
     def __le__(a, b):
         assert isinstance(a, MVVar) and isinstance(b, int)
         return ~(a/(b+1))
@@ -344,4 +346,23 @@ class MultiValuedNetwork(BaseNetwork):
             left, right = line.split("<-")
             self.append(left.strip(), right.strip())
 
+    def influence_graph(self):
+        import networkx as nx
+        influences = set()
+        ig = nx.MultiDiGraph()
+        for a, f in self.items():
+            ig.add_node(a)
+            for d, spec in self._normalize(a, f):
+                for lit in spec.simplify().literalize().get_literals():
+                    if isinstance(lit, boolean.NOT):
+                        b = lit.args[0]
+                        sign = -1
+                    else:
+                        b = lit
+                        sign = 1
+                    b = self._autokey(b.nodevar())
+                    influences.add((b,a,sign))
+        for (b, a, sign) in influences:
+            ig.add_edge(b, a, sign=sign, label="+" if sign > 0 else "-")
+        return ig
 
