@@ -5,7 +5,7 @@ try:
 except ImportError:
     HAS_NETWORKX = False
 
-def layout_graph(g, method="dot"):
+def layout_graph(g, method="dot", scale=1):
     """
     Generates layout information for `networkx` graph `g`.
     It returns a `dict` object, with position and size information for nodes,
@@ -34,17 +34,18 @@ def layout_graph(g, method="dot"):
             continue
         if p[0] == "node":
             layout["nodes"][p[1]] = {
-                "x": float(p[2]),
-                "y": float(p[3]),
-                "width": float(p[4]),
-                "height": float(p[5])
+                "x": scale*float(p[2]),
+                "y": scale*float(p[3]),
+                "width": scale*float(p[4]),
+                "height": scale*float(p[5])
             }
         elif p[0] == "edge":
             n = int(p[3])
             spec = {
                 "tail": p[1],
                 "head": p[2],
-                "bspline": [(float(p[2*i+4]),float(p[2*i+5])) for i in range(n)],
+                "bspline": [(scale*float(p[2*i+4]),scale*float(p[2*i+5])) \
+                        for i in range(n)],
             }
             layout["edges"].append(spec)
     return layout
