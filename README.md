@@ -1,6 +1,6 @@
 # CoLoMoTo helper functions for Jupyter integration
 
-[![PyPI version](https://badge.fury.io/py/colomoto_jupyter.svg)](https://badge.fury.io/py/colomoto_jupyter)
+[![PyPI version](https://badge.fury.io/py/colomoto-jupyter.svg)](https://badge.fury.io/py/colomoto_jupyter)
 
 
 Provides helper functions for integration in the CoLoMoTo Jupyter notebook.
