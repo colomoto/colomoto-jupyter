@@ -5,7 +5,6 @@ from . import IN_IPYTHON
 
 if IN_IPYTHON:
     from IPython.display import display, Javascript
-    from IPython.utils.py3compat import str_to_bytes, bytes_to_str
 
 def jupyter_replace_cell_call(orig_func, dest_func, append_args=(),
                                 comment=True):
