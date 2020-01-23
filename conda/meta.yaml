@@ -1,5 +1,5 @@
 {% set name = "colomoto_jupyter" %}
-{% set version = "0.5.10" %}
+{% set version = "0.5.11" %}
 
 package:
   name: '{{ name|lower }}'
