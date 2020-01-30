@@ -1,11 +1,15 @@
 
 import copy
+import re
+import unicodedata
 
 from colomoto_jupyter import import_colomoto_tool
 from colomoto_jupyter.sessionfiles import new_output_file
 from colomoto_jupyter import IN_IPYTHON, jupyter_setup
 
 import boolean
+
+re_nonword = re.compile(r"\W", flags=re.A)
 
 if IN_IPYTHON:
     jupyter_setup("minibn", label="miniBN")
@@ -69,6 +73,8 @@ class BaseNetwork(dict):
     def _normalize_tr(self, tr):
         ntr = {}
         for k, v in tr.items():
+            if isinstance(v, str):
+                v = self.ba.parse(v)
             if not isinstance(k, self.ba.Symbol):
                 k = self.v(k)
             ntr[k] = self._autobool(v)
@@ -84,9 +90,9 @@ class BaseNetwork(dict):
             return expr
         return dict([(a, _autostate(self[a].subs(tr).simplify())) for a in self])
 
-    def rewrite(self, a, tr):
+    def rewrite(self, a, tr, simplify=True):
         tr = self._normalize_tr(tr)
-        self[a] = self[a].subs(tr).simplify()
+        self[a] = self[a].subs(tr, simplify=simplify)
 
     def __setitem__(self, a, f):
         if isinstance(f, str):
@@ -101,6 +107,44 @@ class BaseNetwork(dict):
         bn = copy.copy(self)
         bn.ba = self.ba
         return bn
+
+    def _quick_rename(self, name, newname):
+        if newname == name:
+            return
+        assert newname not in self, "Node {} already exists!".format(newname)
+        self[newname] = self[name]
+        del self[name]
+
+    def rename(self, a, b):
+        self._quick_rename(a, b)
+        for n in self:
+            self.rewrite(n, {a:b}, simplify=False)
+
+    def sanitize_names(self):
+        def _sanitize_name(name):
+            sname = unicodedata.normalize("NFD", name)
+            sname = re_nonword.sub("_", sname)
+            if sname != name:
+                basesname = sname
+                tag = 2
+                while sname in self:
+                    sname = f"{basesname}_{tag}"
+                    tag += 1
+                self._quick_rename(name, sname)
+                return sname
+
+        names = list(sorted(self.keys()))
+        tr = {}
+        btr = {}
+        for name in names:
+            sname = _sanitize_name(name)
+            if sname:
+                tr[name] = sname
+                btr[self.v(name)] = self.v(sname)
+        if btr:
+            for a in self:
+                self.rewrite(a, btr, simplify=False)
+        return tr
 
     biolqm_format = None
     def to_biolqm(self):
