@@ -3,6 +3,8 @@ import os
 import json
 import base64
 
+import pandas as pd
+
 from .formatters import install_default_formatters
 from .wui import wui_sources
 
@@ -16,6 +18,8 @@ except NameError:
 
 if IN_IPYTHON:
     from IPython.display import display, HTML, Image, Markdown
+
+    pd.set_option("display.max_columns", None)
 
     def hello():
         docker_image = os.getenv("DOCKER_IMAGE")
@@ -101,17 +105,12 @@ def show_image(data):
         data = base64.b64decode(data)
     return Image(data=data)
 
-if IN_IPYTHON:
-    try:
-        from tabulate import tabulate as _tabulate
-        def tabulate(*args, **kwargs):
-            defaults = {
-                "tablefmt": "html",
-                "headers": "keys",
-                "showindex": "always"
-            }
-            defaults.update(kwargs)
-            return Markdown(_tabulate(*args, **defaults))
-    except ImportError:
-        pass
-
+def tabulate(*args, drop_duplicates=True, **kwargs):
+    if "columns" not in kwargs:
+        drop_duplicate = False
+    df = pd.DataFrame(*args, **kwargs)
+    df.sort_values(list(df.columns), inplace=True)
+    if drop_duplicates:
+        df.drop_duplicates(inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    return df

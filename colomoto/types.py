@@ -56,7 +56,7 @@ class TrapSpacesAttractor(list):
                 return True
         return False
     def project(self, keys):
-        p = self[0].projec(keys)
+        p = self[0].project(keys)
         for tp in self[1:]:
             for k,v in tp.project(keys).items():
                 p[k] = multivalue_merge(p[k], v)
