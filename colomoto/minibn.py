@@ -1,9 +1,11 @@
 
 import copy
+import os
 import re
 import unicodedata
 
 from colomoto_jupyter import import_colomoto_tool
+from colomoto_jupyter.io import ensure_localfile
 from colomoto_jupyter.sessionfiles import new_output_file
 from colomoto_jupyter import IN_IPYTHON, jupyter_setup
 
@@ -29,7 +31,11 @@ class BaseNetwork(dict):
             allowed_in_token=allowed_in_name)
         if data:
             if isinstance(data, str):
-                self.import_data(data.split("\n"))
+                if "\n" in data or not os.path.exists(data):
+                    self.import_data(data.splitlines())
+                else:
+                    with open(data) as fp:
+                        self.import_data(fp)
             elif isinstance(data, dict):
                 for a, f in data.items():
                     self[a] = f
@@ -46,12 +52,12 @@ class BaseNetwork(dict):
         return self.source(sep=" <- ")
 
     @classmethod
-    def load(celf, filename):
-        f = celf()
+    def load(celf, filename, **kwargs):
+        f = celf(**kwargs)
+        filename = ensure_localfile(filename)
         with open(filename) as data:
             f.import_data(data)
         return f
-
 
     def v(self, name):
         return self.ba.symbols(name)[0]
