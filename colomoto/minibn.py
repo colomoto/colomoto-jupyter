@@ -309,9 +309,7 @@ class MVVar(boolean.Symbol):
             return getobj(a) < getobj(b)
         if isinstance(b, int):
             return ~(a / b)
-        if isinstance(b, NOT):
-            return False
-        assert False, "unsupported type {} ({})".format(type(b), b)
+        return False
     def __le__(a, b):
         assert isinstance(a, MVVar) and isinstance(b, int)
         return ~(a/(b+1))
@@ -344,6 +342,17 @@ class MultiValuedNetwork(BaseNetwork):
         elif isinstance(spec, boolean.Expression):
             return [(va, spec)]
         return spec
+
+    def simplify(self):
+        mn = copy.copy(self)
+        for a, spec in self.items():
+            if isinstance(spec, dict):
+                mn[a] = {i: f.simplify() for i,f in spec.items()}
+            elif isinstance(spec, boolean.Expression):
+                mn[a] = spec.simplify()
+            else: # list
+                mn[a] = [(i,f.simplify()) for i,f in spec]
+        return mn
 
     def rewrite(self, a, tr):
         tr = self._normalize_tr(tr)
