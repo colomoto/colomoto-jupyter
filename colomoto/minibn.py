@@ -160,6 +160,46 @@ class BaseNetwork(dict):
         biolqm = import_colomoto_tool("biolqm")
         return biolqm.load(bnfile)
 
+
+def simplify_dnf(ba, f):
+    def is_wellformed_dnf(f):
+        pos, neg = set(), set()
+        def is_lit(f):
+            if isinstance(f, ba.Symbol):
+                pos.add(f.obj)
+                return True
+            elif isinstance(f, ba.NOT) \
+                    and isinstance(f.args[0], ba.Symbol):
+                neg.add(f.args[0].obj)
+                return True
+            return False
+
+        def is_clause(f):
+            if is_lit(f):
+                return True
+            if isinstance(f, ba.AND):
+                for g in f.args:
+                    if not is_lit(g):
+                        return False
+                return True
+            return False
+
+        if f is ba.TRUE or f is ba.FALSE:
+            return True, set()
+        if is_clause(f):
+            return True, pos.intersection(neg)
+        if isinstance(f, ba.OR):
+            for g in f.args:
+                if not is_clause(g):
+                    return False, None
+            return True, pos.intersection(neg)
+        return False, None
+
+    is_dnf, suspects = is_wellformed_dnf(f)
+    if is_dnf and suspects:
+        return ba.dnf(ba.cnf(f))
+    return f
+
 class BooleanNetwork(BaseNetwork):
 
     biolqm_format = "bnet"
@@ -198,7 +238,9 @@ class BooleanNetwork(BaseNetwork):
     def simplify(self):
         bn = copy.copy(self)
         for a, f in bn.items():
-            bn[a] = f.simplify()
+            f = f.simplify()
+            f = simplify_dnf(self.ba, f)
+            bn[a] = f
         return bn
 
     def as_dnf(self):
