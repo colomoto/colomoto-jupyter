@@ -2,6 +2,7 @@
 import copy
 import os
 import re
+import sys
 import unicodedata
 
 from colomoto_jupyter import import_colomoto_tool
@@ -40,9 +41,32 @@ class BaseNetwork(dict):
                 for a, f in data.items():
                     self[a] = f
             else:
-                self.import_data(data)
+                imported = False
+                def biolqm_import(biolqm, lqm):
+                    bnfile = new_output_file(self.biolqm_format)
+                    assert biolqm.save(lqm, bnfile)
+                    with open(bnfile) as fp:
+                        self.import_data(fp)
+                    return True
+                if "biolqm" in sys.modules:
+                    biolqm = sys.modules["biolqm"]
+                    if biolqm.is_biolqm_object(data):
+                        imported = biolqm_import(biolqm, data)
+                if not imported and "ginsim" in sys.modules:
+                    ginsim = sys.modules["ginsim"]
+                    if ginsim.is_ginsim_object(data):
+                        biolqm = import_colomoto_tool("biolqm")
+                        imported = biolqm_import(biolqm, ginsim.to_biolqm(data))
+                if not imported:
+                    self.import_data(data)
         for a, f in kwargs.items():
             self[a] = f
+
+    @classmethod
+    def auto_cast(celf, obj):
+        if isinstance(obj, celf):
+            return obj
+        return celf(obj)
 
     def import_data(self, data):
         raise NotImplementedError
