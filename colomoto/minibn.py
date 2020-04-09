@@ -1,6 +1,7 @@
 
 import copy
 import os
+import random
 import re
 import sys
 import unicodedata
@@ -118,7 +119,10 @@ class BaseNetwork(dict):
             elif expr == self.ba.FALSE:
                 return 0
             return expr
-        return dict([(a, _autostate(self[a].subs(tr).simplify())) for a in self])
+        return {a: _autostate(self[a].subs(tr).simplify()) for a in self}
+
+    def zero(self):
+        return {a:0 for a in self}
 
     def rewrite(self, a, tr, simplify=True):
         tr = self._normalize_tr(tr)
@@ -291,7 +295,7 @@ class BooleanNetwork(BaseNetwork):
                 clauses = clauses.args
 
             return list(map(make_clause, clauses))
-        return dict([(i,make_dnf(f)) for (i,f) in self.items()])
+        return {i: make_dnf(f) for (i,f) in self.items()}
 
     def influence_graph(self):
         import networkx as nx
@@ -313,13 +317,13 @@ class BooleanNetwork(BaseNetwork):
 
     def constants(self):
         csttypes = [boolean.boolean._TRUE, boolean.boolean._FALSE]
-        return dict([(i,f is self.ba.TRUE) for i,f in self.items() \
-                if type(f) in csttypes])
+        return {i:f is self.ba.TRUE for i,f in self.items() \
+                if type(f) in csttypes}
 
     def propagate_constants(self):
         csttypes = [boolean.boolean._TRUE, boolean.boolean._FALSE]
         bn = self.copy()
-        csts = dict([(i,f) for i, f in bn.items() if type(f) in csttypes])
+        csts = {i:f for i, f in bn.items() if type(f) in csttypes}
         while csts:
             new_csts = {}
             for a in bn.keys():
@@ -490,4 +494,63 @@ class MultiValuedNetwork(BaseNetwork):
         for (b, a, sign) in influences:
             ig.add_edge(b, a, sign=sign, label="+" if sign > 0 else "-")
         return ig
+
+
+class _Run(object):
+    def __init__(self, model, init, k):
+        """
+        Run at most `k` steps of an execution of given `model` from initial
+        configuration `init`.
+
+        Stops at fixpoints.
+        """
+        if not isinstance(model, BooleanNetwork):
+            raise TypeError("Only BooleanNetwork objects are supported")
+        self.model = model
+        self.init = init
+        self.k = k
+    def select_for_update(self, nodes):
+        """
+        Return the sub-sequence of `nodes` to actually update
+        """
+        raise NotImplementedError
+    def __iter__(self):
+        cur = self.init
+        yield cur.copy()
+        for i in range(self.k):
+            target = self.model(cur)
+            update = [a for a,i in target.items() if cur[a] != i]
+            if not update:
+                return
+            update = self.select_for_update(update)
+            for a in update:
+                cur[a] = target[a]
+            yield cur.copy()
+
+class _RandomRun(_Run):
+    def __init__(self, model, init, k, seed=None):
+        super().__init__(model, init, k)
+        self.random = random.Random(seed)
+
+class SyncRun(_Run):
+    """
+    Synchronous update run
+    """
+    def select_for_update(self, nodes):
+        return nodes
+class FAsyncRun(_RandomRun):
+    """
+    Fully-asynchronous update run
+    """
+    def select_for_update(self, nodes):
+        return (self.random.choice(nodes),)
+class GAsyncRun(_RandomRun):
+    """
+    (General) asynchronous update run
+    """
+    def select_for_update(self, nodes):
+        k = len(nodes)
+        mask = self.random.getrandbits(k)
+        mask = "{0:b}".format(mask).rjust(k, "0")
+        return [a for (a,sel) in zip(nodes, mask) if sel == "1"]
 
