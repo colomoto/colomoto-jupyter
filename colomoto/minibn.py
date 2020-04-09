@@ -550,7 +550,9 @@ class GAsyncRun(_RandomRun):
     """
     def select_for_update(self, nodes):
         k = len(nodes)
-        mask = self.random.getrandbits(k)
+        mask = 0
+        while not mask:
+            mask = self.random.getrandbits(k)
         mask = "{0:b}".format(mask).rjust(k, "0")
         return [a for (a,sel) in zip(nodes, mask) if sel == "1"]
 
