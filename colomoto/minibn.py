@@ -515,7 +515,7 @@ class _Run(object):
         """
         raise NotImplementedError
     def __iter__(self):
-        cur = self.init
+        cur = self.init.copy()
         yield cur.copy()
         for i in range(self.k):
             target = self.model(cur)
