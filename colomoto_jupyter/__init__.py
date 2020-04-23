@@ -17,7 +17,7 @@ except NameError:
     IN_IPYTHON = False
 
 if IN_IPYTHON:
-    from IPython.display import display, HTML, Image, Markdown
+    from IPython.display import display, HTML, SVG, Image, Markdown
 
     pd.set_option("display.max_columns", None)
 
@@ -100,7 +100,10 @@ def jupyter_setup(*args, **kwargs):
     js_src = jupyter_js(js_src, **jsargs)
     display(HTML("%s%s" % (js_src, css_src)))
 
-def show_image(data):
+def show_image(data, is_svg=False):
+    if is_svg:
+        # TODO: improve scaling of SVG images
+        return SVG(data)
     if isinstance(data,str):
         data = base64.b64decode(data)
     return Image(data=data)
