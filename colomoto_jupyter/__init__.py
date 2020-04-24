@@ -102,7 +102,6 @@ def jupyter_setup(*args, **kwargs):
 
 def show_image(data, is_svg=False):
     if is_svg:
-        # TODO: improve scaling of SVG images
         return SVG(data)
     if isinstance(data,str):
         data = base64.b64decode(data)
