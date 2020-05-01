@@ -107,12 +107,13 @@ def show_image(data, is_svg=False):
         data = base64.b64decode(data)
     return Image(data=data)
 
-def tabulate(*args, drop_duplicates=True, **kwargs):
+def tabulate(*args, drop_duplicates=True, reindex=False, **kwargs):
     if "columns" not in kwargs:
         drop_duplicate = False
     df = pd.DataFrame(*args, **kwargs)
     df.sort_values(list(df.columns), inplace=True)
     if drop_duplicates:
         df.drop_duplicates(inplace=True)
-    df.reset_index(drop=True, inplace=True)
+    if reindex:
+        df.reset_index(drop=True, inplace=True)
     return df
