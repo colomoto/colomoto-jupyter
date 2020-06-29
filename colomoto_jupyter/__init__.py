@@ -68,6 +68,8 @@ def import_colomoto_tool(modname):
     return mod
 
 def jupyter_js(data, autoclean=True, **args):
+    if os.getenv("COLOMOTO_SKIP_JUPYTER_JS") == "1":
+        return ""
     if autoclean:
         args["class"] = "to-be-removed"
     args = " ".join(['%s="%s"' % it for it in args.items()]) if args else ""
@@ -76,7 +78,8 @@ def jupyter_js(data, autoclean=True, **args):
             %s }</script>""" % (args, data)
 
 def disp_jupyter_js(data, **opts):
-    display(HTML(jupyter_js(data, **opts)))
+    if os.getenv("COLOMOTO_SKIP_JUPYTER_JS") != "1":
+        display(HTML(jupyter_js(data, **opts)))
 
 __GLOBAL_INSTALL_DONE = False
 def jupyter_setup(*args, **kwargs):
@@ -98,7 +101,8 @@ def jupyter_setup(*args, **kwargs):
         jsargs["id"] = wui_src["ssid"]
 
     js_src = jupyter_js(js_src, **jsargs)
-    display(HTML("%s%s" % (js_src, css_src)))
+    if os.getenv("COLOMOTO_SKIP_JUPYTER_JS") != "1":
+        display(HTML("%s%s" % (js_src, css_src)))
 
 def show_image(data, is_svg=False):
     if is_svg:
