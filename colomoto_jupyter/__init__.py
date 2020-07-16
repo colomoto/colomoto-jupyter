@@ -8,6 +8,8 @@ import pandas as pd
 from .formatters import install_default_formatters
 from .wui import wui_sources
 
+from colomoto import types
+
 basedir = os.path.join(os.path.dirname(__file__))
 
 try:
@@ -111,13 +113,44 @@ def show_image(data, is_svg=False):
         data = base64.b64decode(data)
     return Image(data=data)
 
-def tabulate(*args, drop_duplicates=True, reindex=False, **kwargs):
+def tabulate(data, drop_duplicates=True, reindex=False, sort=True, **kwargs):
     if "columns" not in kwargs:
         drop_duplicate = False
-    df = pd.DataFrame(*args, **kwargs)
-    df.sort_values(list(df.columns), inplace=True)
+
+    index = kwargs.get("index")
+    level = 0
+    if index is None and isinstance(data, list):
+        indices = []
+        for i, e in enumerate(data):
+            if isinstance(e, list):
+                level = 1
+                indices += [(i,j) for j in range(len(e))]
+            else:
+                indices.append((i,))
+        if level > 0:
+            indices = (idx+(0,)*(level-len(idx)+1) for idx in indices)
+            index = pd.MultiIndex.from_tuples(indices)
+            kwargs["index"] = index
+            flat_data = []
+            for e in data:
+                if isinstance(e, list):
+                    flat_data.extend(e)
+                else:
+                    flat_data.append(e)
+            data = flat_data
+
+    df = pd.DataFrame(data, **kwargs)
+    if sort:
+        df.sort_values(list(df.columns), inplace=True)
+        if level > 0:
+            df.sort_index(level=list(range(1,level+1)), sort_remaining=False, inplace=True)
     if drop_duplicates:
         df.drop_duplicates(inplace=True)
     if reindex:
         df.reset_index(drop=True, inplace=True)
+    if level > 0:
+        props = [("display", "none")]
+        styles = [{"selector": f"th.level{l}", "props": props} for l in range(1,level+1)]
+        styles += [{"selector": f"th.blank.level{l}", "props": props} for l in range(0,level)]
+        df = df.style.set_table_styles(styles)
     return df
