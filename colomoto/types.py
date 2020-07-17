@@ -24,11 +24,11 @@ class PartialState(dict):
 class State(PartialState):
     pass
 
-class TrapSpaceAttractor(dict):
+class Hypercube(dict):
     def extend(self, ts):
-        if not isinstance(ts, TrapSpaceAttractor):
-            ts = TrapSpaceAttractor(ts)
-        return TrapSpacesAttractor([self, ts])
+        if not isinstance(ts, Hypercube):
+            ts = Hypercube(ts)
+        return HypercubeCollection([self, ts])
     def match_partial_state(self, ps):
         for k, v in ps.items():
             av = self.get(k)
@@ -45,11 +45,11 @@ class TrapSpaceAttractor(dict):
                 return False
         return True
 
-class TrapSpacesAttractor(list):
+class HypercubeCollection(list):
     def extend(self, ts):
-        if not isinstance(ts, TrapSpaceAttractor):
-            ts = TrapSpaceAttractor(ts)
-        return TrapSpacesAttractor(self+[ts])
+        if not isinstance(ts, Hypercube):
+            ts = Hypercube(ts)
+        return self.__class__(self+[ts])
     def match_partial_state(self, ps):
         for tsa in self:
             if tsa.match_partial_state(ps):
@@ -61,8 +61,12 @@ class TrapSpacesAttractor(list):
             for k,v in tp.project(keys).items():
                 p[k] = multivalue_merge(p[k], v)
         return p
-
     @property
     def is_single_state(self):
         return False
 
+# Deprecated
+class TrapSpaceAttractor(Hypercube):
+    pass
+class TrapSpacesAttractor(HypercubeCollection):
+    pass
