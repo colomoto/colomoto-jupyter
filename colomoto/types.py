@@ -1,4 +1,6 @@
 
+import pandas as pd
+
 def multivalue_merge(a,b):
     if a == b:
         return a
@@ -20,6 +22,9 @@ class PartialState(dict):
         return True
     def project(self, keys):
         return dict([(k,v) for k,v in self.items() if k in keys])
+
+    def as_dataframe(self):
+        return pd.DataFrame([self])
 
 class State(PartialState):
     def count(self):
@@ -59,6 +64,9 @@ class Hypercube(dict):
             return State(self)
         return self
 
+    def as_dataframe(self):
+        return pd.DataFrame([self])
+
     @property
     def is_single_state(self):
         for v in self.values():
@@ -94,6 +102,9 @@ class HypercubeCollection(list):
             return self[0].simplify()
         # TODO: espresso simplifcation https://github.com/aurelien-naldi/reversed-model-demo/blob/master/boolsim.py#L72
         return self
+
+    def as_dataframe(self):
+        return pd.DataFrame(self)
 
     @property
     def is_single_state(self):
