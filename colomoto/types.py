@@ -22,7 +22,13 @@ class PartialState(dict):
         return dict([(k,v) for k,v in self.items() if k in keys])
 
 class State(PartialState):
-    pass
+    def count(self):
+        """
+        Returns number of states represented by this object (1)
+        """
+        return 1
+    def simplify(self):
+        return self
 
 class Hypercube(dict):
     def extend(self, ts):
@@ -37,6 +43,21 @@ class Hypercube(dict):
         return True
     def project(self, keys):
         return dict([(k,v) for k,v in self.items() if k in keys])
+
+    def count(self):
+        """
+        Returns number of states represented by this object
+        """
+        return 2**len([v for v in self.values() if not isinstance(v,int)])
+
+    def simplify(self):
+        """
+        Returns a :py:class:`.State` object if there is no free component in
+        this hypercube, *self* otherwise.
+        """
+        if self.is_single_state:
+            return State(self)
+        return self
 
     @property
     def is_single_state(self):
@@ -61,6 +82,19 @@ class HypercubeCollection(list):
             for k,v in tp.project(keys).items():
                 p[k] = multivalue_merge(p[k], v)
         return p
+
+    def count(self):
+        """
+        Returns number of states represented by this object
+        """
+        return sum([h.count() for h in self])
+
+    def simplify(self):
+        if len(self) == 1:
+            return self[0].simplify()
+        # TODO: espresso simplifcation https://github.com/aurelien-naldi/reversed-model-demo/blob/master/boolsim.py#L72
+        return self
+
     @property
     def is_single_state(self):
         return False
