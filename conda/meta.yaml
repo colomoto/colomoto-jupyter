@@ -18,6 +18,7 @@ requirements:
     - pip
 
   run:
+    - espresso-logic-minimizer
     - python
     - beautifulsoup4
     - boolean.py

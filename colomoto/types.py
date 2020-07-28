@@ -1,4 +1,8 @@
 
+import os
+import subprocess
+import tempfile
+
 import pandas as pd
 
 def multivalue_merge(a,b):
@@ -98,9 +102,40 @@ class HypercubeCollection(list):
         return sum([h.count() for h in self])
 
     def simplify(self):
+        """
+        Warning: supports only Boolean states
+        """
         if len(self) == 1:
             return self[0].simplify()
-        # TODO: espresso simplifcation https://github.com/aurelien-naldi/reversed-model-demo/blob/master/boolsim.py#L72
+
+        try:
+            subprocess.run(["espresso", "-h"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except FileNotFoundError:
+            return self
+
+        nodes = list(self[0])
+
+        fd, inp = tempfile.mkstemp(prefix="colomoto-espresso")
+        try:
+            with os.fdopen(fd, "w") as fp:
+                fp.write(f".i {len(nodes)}\n.o 1\n")
+                for h in self:
+                    fp.write("".join([str(h[n]).replace("*","-") for n in nodes]))
+                    fp.write(" 1\n")
+                fp.write(".e\n")
+            esp = subprocess.run(["espresso", inp], capture_output=True,
+                    encoding="ascii")
+            if esp.returncode == 0:
+                hs = [dict(zip(nodes, list(l.split(" ")[0].replace("-", "*"))))
+                        for l in esp.stdout.split("\n")[3:-2]]
+                hs = [Hypercube(h).simplify() for h in hs]
+                if len(hs) > 1:
+                    return self.__class__(hs)
+                else:
+                    return hs[0]
+        finally:
+            os.unlink(inp)
+
         return self
 
     def as_dataframe(self):
