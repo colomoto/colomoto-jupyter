@@ -27,6 +27,7 @@ See https://github.com/colomoto/colomoto-jupyter
     include_package_data = True,
     packages = find_packages(),
     py_modules = ["cellcollective",
+        "espresso_setup",
         "itstools", "itstools_setup",
         "nusmv", "nusmv_setup"],
     classifiers=[
