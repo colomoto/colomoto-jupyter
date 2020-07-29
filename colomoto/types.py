@@ -1,4 +1,5 @@
 
+import logging
 import os
 import subprocess
 import tempfile
@@ -111,6 +112,7 @@ class HypercubeCollection(list):
         try:
             subprocess.run(["espresso", "-h"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except FileNotFoundError:
+            logging.warning("The espresso tool is not installed, skipping simplification.\nConsider executing `python -m espresso_setup`.")
             return self
 
         nodes = list(self[0])
