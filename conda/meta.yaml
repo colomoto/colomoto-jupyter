@@ -24,7 +24,6 @@ requirements:
     - boolean.py
     - networkx >=2.0
     - pydot >=1.2.3
-    - pygraphviz
     - pandas
 
 test:

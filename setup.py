@@ -21,7 +21,7 @@ See https://github.com/colomoto/colomoto-jupyter
         "pandas",
     ],
     extras_require = {
-        "networkx": ["networkx >= 2.0", "pydot", "pygraphviz"],
+        "networkx": ["networkx >= 2.0", "pydot"],
     },
     license="LGPL v3+/CeCILL-C",
     include_package_data = True,
