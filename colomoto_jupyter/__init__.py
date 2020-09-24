@@ -115,7 +115,7 @@ def show_image(data, is_svg=False):
 
 def tabulate(data, drop_duplicates=True, reindex=False, sort=True, **kwargs):
     if "columns" not in kwargs:
-        drop_duplicate = False
+        drop_duplicates = False
 
     index = kwargs.get("index")
     level = 0
@@ -143,7 +143,13 @@ def tabulate(data, drop_duplicates=True, reindex=False, sort=True, **kwargs):
     if sort:
         df.sort_values(list(df.columns), inplace=True)
         if level > 0:
-            df.sort_index(level=list(range(1,level+1)), sort_remaining=False, inplace=True)
+            level0 = df.index.get_level_values(0).unique()
+            lm = dict(zip(level0, range(len(level0))))
+            mi = pd.MultiIndex.from_tuples([(lm[l[0]],)+l[1:] for l in df.index])
+            df.set_index(mi, inplace=True)
+            df.sort_index(level=0, sort_remaining=False, inplace=True)
+            mi = pd.MultiIndex.from_tuples([(level0[l[0]],)+l[1:] for l in df.index])
+            df.set_index(mi, inplace=True)
     if drop_duplicates:
         df.drop_duplicates(inplace=True)
     if reindex:
