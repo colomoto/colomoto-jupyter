@@ -164,7 +164,7 @@ def load(identifier, auto_persistent=False):
         bname = conn.sbml_basename
         if not os.path.isfile(bname):
             if not auto_persistent:
-                logger.warning(f"""This commands relies on the online CellCollective API which may change over time!
+                logger.warning(f"""This command relies on the online CellCollective API which may change over time!
 To improve the repeatibility of this notebook, consider using the command
 
     cellcollective.load("{identifier}", auto_persistent=True)
