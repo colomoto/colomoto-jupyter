@@ -1,7 +1,12 @@
 
+import os
 import re
+import shutil
+
+import logging
 
 from urllib.parse import urlparse
+from urllib.request import HTTPError
 
 from xml.dom import *
 from xml.dom.minidom import parse
@@ -11,31 +16,38 @@ from bs4 import BeautifulSoup
 from colomoto_jupyter import *
 
 if IN_IPYTHON:
-    from IPython.display import Markdown
+    from IPython.display import Markdown, FileLink
 
-urlidentifier = re.compile("https?://[^/]*\\bcellcollective\.org/[^/]*#(\\d+)\\b")
+logger = logging.getLogger(__name__)
+
+urlidentifier = re.compile("https?://[^/]*\\bcellcollective\.org/[^/]*#(\\d+)(:(\\d+))?\\b")
 
 def id_from_url(url):
     uri = urlparse(url)
     if uri.netloc:
         if uri.scheme == "cellcollective":
             return uri.netloc
+        url = url.replace("module/", "")
         urlmatch = urlidentifier.search(url)
         if urlmatch:
-            return urlmatch.group(1)
+            return urlmatch.group(1),\
+                    urlmatch.group(3) or 1
 
 def url_matches(url):
     return id_from_url(url) is not None
 
 class CellCollectiveConnector(object):
-    def __init__(self, identifier):
-        self.id = id_from_url(identifier) or identifier
+    def __init__(self, identifier, version=1):
+        idv = id_from_url(identifier) or identifier
+        if type(idv) is not tuple:
+            idv = idv, version
+        self.id, self.version = idv
     @property
     def sbml_url(self):
-        return "http://api.cellcollective.org/model/export/{}?type=SBML".format(self.id)
+        return f"https://research.cellcollective.org/api/model/{self.id}/export/version/{self.version}?type=sbml"
     @property
     def sbml_basename(self):
-        return "{}.sbml".format(self.id)
+        return f"cellcollective-{self.id}-{self.version}.sbml"
 
 def connect(identifier):
     return CellCollectiveConnector(identifier)
@@ -114,7 +126,7 @@ class CellCollectiveSBMLModel(object):
 
 
 
-def load(identifier):
+def load(identifier, auto_persistent=False):
     conn = None
     if isinstance(identifier, CellCollectiveConnector):
         conn = identifier
@@ -126,8 +138,31 @@ def load(identifier):
     if conn:
         from colomoto_jupyter.io import download
         url = conn.sbml_url
+        urls = [url, url.replace("type=sbml", "type=SBML")]
         bname = conn.sbml_basename
-        sbmlfile = download(url, suffix=bname)
+        if not os.path.isfile(bname):
+            if not auto_persistent:
+                logger.warning(f"""This commands relies on the online CellCollective API which may change over time!
+To improve the repeatibility of this notebook, consider using the command
+
+    cellcollective.load("{identifier}", auto_persistent=True)
+
+and attach the "{bname}" file along with your notebook.""")
+            else:
+                logger.warning(f"Do not forget attaching \"{bname}\" file with your notebook")
+                logger.info(FileLink(bname))
+            for i, url in enumerate(urls):
+                try:
+                    sbmlfile = download(url, suffix=bname)
+                    if auto_persistent:
+                        shutil.move(sbmlfile, bname)
+                    break
+                except HTTPError:
+                    if i == len(urls)-1:
+                        raise
+        if os.path.isfile(bname):
+            display(FileLink(bname, result_html_prefix="Using local file "))
+            sbmlfile = bname
     return CellCollectiveSBMLModel(sbmlfile)
 
 def to_biolqm(model):
