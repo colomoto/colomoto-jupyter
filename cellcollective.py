@@ -26,7 +26,11 @@ def id_from_url(url):
     uri = urlparse(url)
     if uri.netloc:
         if uri.scheme == "cellcollective":
-            return uri.netloc
+            identifier = uri.netloc
+            if ":" in identifier:
+                return tuple(identifier.split(":"))
+            else:
+                return identifier, 1
         url = url.replace("module/", "")
         urlmatch = urlidentifier.search(url)
         if urlmatch:
