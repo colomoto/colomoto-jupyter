@@ -171,8 +171,9 @@ To improve the repeatibility of this notebook, consider using the command
 
 and attach the "{bname}" file along with your notebook.""")
             else:
-                logger.warning(f"Do not forget attaching \"{bname}\" file with your notebook")
-                logger.info(FileLink(bname))
+                if IN_IPYTHON:
+                    logger.warning(f"Do not forget attaching \"{bname}\" file with your notebook")
+                    logger.info(FileLink(bname))
             for i, url in enumerate(urls):
                 try:
                     sbmlfile = download(url, suffix=bname)
@@ -183,7 +184,8 @@ and attach the "{bname}" file along with your notebook.""")
                     if i == len(urls)-1:
                         raise
         if os.path.isfile(bname):
-            display(FileLink(bname, result_html_prefix="Using local file "))
+            if IN_IPYTHON:
+                display(FileLink(bname, result_html_prefix="Using local file "))
             sbmlfile = bname
     return CellCollectiveSBMLModel(sbmlfile)
 
