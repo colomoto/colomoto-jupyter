@@ -131,6 +131,24 @@ class CellCollectiveSBMLModel(object):
 
 
 def load(identifier, auto_persistent=False):
+    """
+    Load a CellCollective model from its URL or SBML export.
+
+    `identifier` can be:
+    - a URL of the form ``"cellcollective://{model_id}:{model_version}"``
+    - the model URL from `research.cellcollective.org`
+    - the location of the SBML file exported from CellCollective
+
+    Whenever `identifier` is one of the two first cases, the module relies on
+    the online API of CellCollective to download the SBML file.
+    As the API may change over time, it is strongly recommended to rely on
+    instead on downloaded SBML files and attach them with the notebook to ensure
+    its repeatibility over time.
+
+    With the option ``auto_persistent=True``, the module first looks for an
+    existing downloaded SBML file. If it does not exists, it uses the online
+    API to download it and move it alongside the notebook.
+    """
     conn = None
     if isinstance(identifier, CellCollectiveConnector):
         conn = identifier
