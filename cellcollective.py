@@ -130,7 +130,7 @@ class CellCollectiveSBMLModel(object):
 
 
 
-def load(identifier, auto_persistent=False):
+def load(identifier, auto_persistent=True):
     """
     Load a CellCollective model from its URL or SBML export.
 
