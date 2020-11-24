@@ -10,5 +10,9 @@ def bn1():
 
 class TestConversions(unittest.TestCase):
     def test_pyboolnet(self):
+        try:
+            import PyBoolNet
+        except ImportError:
+            return
         bn = bn1()
         pybn = bn.to_pyboolnet()
