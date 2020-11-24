@@ -4,6 +4,7 @@ import os
 import random
 import re
 import sys
+import tempfile
 import unicodedata
 
 from colomoto_jupyter import import_colomoto_tool
@@ -342,6 +343,15 @@ class BooleanNetwork(BaseNetwork):
         from pypint.converters import import_minibn
         return import_minibn(self)
 
+    def to_pyboolnet(self):
+        PyBoolNet = import_colomoto_tool("PyBoolNet")
+        fd, bnetfile = tempfile.mkstemp(".bnet")
+        try:
+            with os.fdopen(fd, "w") as fp:
+                fp.write(self.source())
+            return PyBoolNet.FileExchange.bnet2primes(bnetfile)
+        finally:
+            os.unlink(bnetfile)
 
 class MVVar(boolean.Symbol):
     def __init__(self, obj):
