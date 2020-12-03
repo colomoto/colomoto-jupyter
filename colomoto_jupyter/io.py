@@ -11,7 +11,7 @@ from colomoto_jupyter import IN_IPYTHON
 import colomoto_jupyter.config as cfg
 
 if IN_IPYTHON:
-    from IPython.display import Markdown, FileLink
+    from IPython.display import display, FileLink
 
 import cellcollective
 
