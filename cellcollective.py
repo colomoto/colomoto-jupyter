@@ -15,9 +15,6 @@ from bs4 import BeautifulSoup
 
 from colomoto_jupyter import *
 
-if IN_IPYTHON:
-    from IPython.display import Markdown, FileLink
-
 logger = logging.getLogger(__name__)
 
 urlidentifier = re.compile("https?://[^/]*\\bcellcollective\.org/[^/]*#(\\d+)(:(\\d+))?\\b")
@@ -47,8 +44,9 @@ class CellCollectiveConnector(object):
             idv = idv, version
         self.id, self.version = idv
     @property
-    def sbml_url(self):
-        return f"https://research.cellcollective.org/api/model/{self.id}/export/version/{self.version}?type=sbml"
+    def sbml_urls(self):
+        url = f"https://research.cellcollective.org/api/model/{self.id}/export/version/{self.version}?type=sbml"
+        return [url, url.replace("type=sbml", "type=SBML")]
     @property
     def sbml_basename(self):
         return f"cellcollective-{self.id}-{self.version}.sbml"
@@ -158,35 +156,23 @@ def load(identifier, auto_persistent=True):
         from colomoto_jupyter.io import ensure_localfile
         sbmlfile = ensure_localfile(identifier)
     if conn:
-        from colomoto_jupyter.io import download
-        url = conn.sbml_url
-        urls = [url, url.replace("type=sbml", "type=SBML")]
+        from colomoto_jupyter.io import auto_download
+        urls = conn.sbml_urls
         bname = conn.sbml_basename
-        if not os.path.isfile(bname):
-            if not auto_persistent:
-                logger.warning(f"""This command relies on the online CellCollective API which may change over time!
+        if not os.path.isfile(bname) and not auto_persistent:
+            logger.warning(f"""This command relies on the online CellCollective API which may change over time!
 To improve the repeatibility of this notebook, consider using the command
 
     cellcollective.load("{identifier}", auto_persistent=True)
 
 and attach the "{bname}" file along with your notebook.""")
-            else:
-                if IN_IPYTHON:
-                    logger.warning(f"Do not forget attaching \"{bname}\" file with your notebook")
-                    logger.info(FileLink(bname))
-            for i, url in enumerate(urls):
-                try:
-                    sbmlfile = download(url, suffix=bname)
-                    if auto_persistent:
-                        shutil.move(sbmlfile, bname)
-                    break
-                except HTTPError:
-                    if i == len(urls)-1:
-                        raise
-        if os.path.isfile(bname):
-            if IN_IPYTHON:
-                display(FileLink(bname, result_html_prefix="Using local file "))
-            sbmlfile = bname
+        for i, url in enumerate(urls):
+            try:
+                sbmlfile = auto_download(url, bname)
+                break
+            except HTTPError:
+                if i == len(urls)-1:
+                    raise
     return CellCollectiveSBMLModel(sbmlfile)
 
 def to_biolqm(model):

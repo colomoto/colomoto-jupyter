@@ -24,7 +24,9 @@ class TestURL(unittest.TestCase):
             model = cellcollective.load(case["url"], auto_persistent=True)
             model_id = case["model_id"]
             version = case["version"]
-            self.assertTrue(os.path.isfile(f"cellcollective-{model_id}-{version}.sbml"))
+            expected_filename = f"cellcollective-{model_id}-{version}.sbml")
+            self.assertTrue(os.path.isfile(expected_filename))
+            os.unlink(expected_filename)
 
 if __name__ == '__main__':
     unittest.main()
