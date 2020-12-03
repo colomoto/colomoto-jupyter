@@ -1,7 +1,6 @@
 
 import os
 import re
-import shutil
 
 import logging
 
@@ -17,7 +16,7 @@ from colomoto_jupyter import *
 
 logger = logging.getLogger(__name__)
 
-urlidentifier = re.compile("https?://[^/]*\\bcellcollective\.org/[^/]*#(\\d+)(:(\\d+))?\\b")
+urlidentifier = re.compile("https?://[^/]*\\bcellcollective\\.org/[^/]*#(\\d+)(:(\\d+))?\\b")
 
 def id_from_url(url):
     uri = urlparse(url)
@@ -67,9 +66,9 @@ class CellCollectiveSBMLModel(object):
         self.dom = parse(localfile)
         self.root = self.dom.documentElement
         species_elts = self.root.getElementsByTagNameNS(QUALNS, "qualitativeSpecies")
-        self.id2elt = dict([(e.getAttributeNS(QUALNS, "id"), e) \
+        self.id2elt = dict([(e.getAttributeNS(QUALNS, "id"), e)
                                 for e in species_elts])
-        self.name2id = dict([(e.getAttributeNS(QUALNS, "name"), id) \
+        self.name2id = dict([(e.getAttributeNS(QUALNS, "name"), id)
                                 for id, e in self.id2elt.items()])
 
     @property
@@ -179,4 +178,3 @@ def to_biolqm(model):
     biolqm = import_colomoto_tool("biolqm")
     lqm = biolqm.load(model.localfile)
     return biolqm.sanitize(lqm)
-
