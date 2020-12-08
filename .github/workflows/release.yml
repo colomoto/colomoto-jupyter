@@ -38,6 +38,8 @@ jobs:
         conda config --set channel_priority strict
         conda config --set anaconda_upload yes
     - name: build
-      run: conda build --user colomoto --token $ANACONDA_TOKEN -c defaults -c conda-forge -c colomoto .
+      run: |
+        cd conda
+        conda build --user colomoto --token $ANACONDA_TOKEN -c defaults -c conda-forge -c colomoto .
       env:
         ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
