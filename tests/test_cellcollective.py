@@ -8,8 +8,8 @@ cases = [
 {"url": "https://cellcollective.org/#2329/apoptosis-network",
     "model_id": "2329",
     "version": 1},
-{"url": "https://research.cellcollective.org/?dashboard=true#module/154064:1/escherichia-coli-str-k12-substr-mg1655/1",
-    "model_id": "154064",
+{"url": "https://research.cellcollective.org/?dashboard=true#module/2698:1/hcc1954-breast-cell-line-longterm-erbb-network/1",
+    "model_id": "2698",
     "version": "1"},
 ]
 
