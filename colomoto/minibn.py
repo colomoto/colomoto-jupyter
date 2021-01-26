@@ -1,11 +1,14 @@
 
 import copy
+import itertools
 import os
 import random
 import re
 import sys
 import tempfile
 import unicodedata
+
+import networkx as nx
 
 from colomoto_jupyter import import_colomoto_tool
 from colomoto_jupyter.io import ensure_localfile
@@ -353,6 +356,33 @@ class BooleanNetwork(BaseNetwork):
         finally:
             os.unlink(bnetfile)
 
+    def dynamics(self, update_mode="asynchronous", init=None):
+        """
+        Returns a directed graph (`networkx.DiGraph` object) of the dynamics
+        with the `update_mode`.
+
+        :param update_mode: either `"asynchronous"` (or equivalently
+            `"fully-asynchronous"`), `"synchronous"`, `"general"`.
+            Alternatively, it can be a function returning an
+            :class:`.UpdateModeDynamics` object.
+        :param dict[str,int] init: Optional initial state from which the
+            dynamics is computed.
+        """
+        if isinstance(update_mode, str):
+            if update_mode in ["asynchronous", "fully-asynchronous"]:
+                update_mode = FAsyncUpdateModeDynamics
+            elif update_mode == "general":
+                update_mode = GAsyncUpdateModeDynamics
+            elif update_mode == "synchronous":
+                update_mode = SyncUpdateModeDynamics
+            else:
+                raise ValueError(f"Unknown update mode {update_mode}")
+        update_mode = update_mode(self)
+        if init:
+            return update_mode.partial_dynamics(init)
+        else:
+            return update_mode.dynamics()
+
 class MVVar(boolean.Symbol):
     def __init__(self, obj):
         if isinstance(obj, str):
@@ -566,3 +596,89 @@ class GAsyncRun(_RandomRun):
         mask = "{0:b}".format(mask).rjust(k, "0")
         return [a for (a,sel) in zip(nodes, mask) if sel == "1"]
 
+
+class UpdateModeDynamics(object):
+    def __init__(self, model):
+        if not isinstance(model, BooleanNetwork):
+            raise TypeError("Only BooleanNetwork objects are supported")
+        self.model = model
+        self.nodes = tuple(model)
+        self.n = len(self.nodes)
+
+    def push(self, d, x):
+        def fmt(z):
+            return "".join([str(z[i]) for i in self.nodes])
+        rx = fmt(x)
+        children = list(self(x))
+        for y in children:
+            d.add_edge(rx, fmt(y))
+        return children
+
+    def dynamics(self):
+        d = nx.DiGraph()
+        x = {i: 0 for i in self.nodes}
+        self.push(d, x)
+        even = True
+        right = -1
+        for m in range(1,2**self.n):
+            if even:
+                x[self.nodes[0]] = 1-x[self.nodes[0]]
+                for i in range(self.n):
+                    if x[self.nodes[i]]:
+                        right = i
+                        break
+            else:
+                x[self.nodes[right+1]] = 1-x[self.nodes[right+1]]
+                if x[self.nodes[right+1]]:
+                    right = right+1
+            even = not even
+            self.push(d, x)
+        return d
+
+    def partial_dynamics(self, init):
+        d = nx.DiGraph()
+        def m(x):
+            return tuple([x[i] for i in self.nodes])
+        init = {i: int(init[i]) for i in self.nodes}
+        todo = {m(init)}
+        done = set()
+        while todo:
+            mx = todo.pop()
+            x = dict(zip(self.nodes, mx))
+            done.add(mx)
+            for y in self.push(d, x):
+                my = m(y)
+                if my not in done:
+                    todo.add(my)
+        return d
+
+class ElementaryUpdateModeDynamics(UpdateModeDynamics):
+    def __init__(self, model, min_u, max_u):
+        super().__init__(model)
+        self.min_u = min_u
+        self.max_u = max_u
+
+    def __call__(self, x):
+        z = self.model(x)
+        for k in range(self.min_u, self.max_u+1):
+            for I in itertools.combinations(self.nodes, k):
+                y = x.copy()
+                mod = False
+                for i in I:
+                    if z[i] != y[i]:
+                        mod = True
+                    y[i] = z[i]
+                if mod:
+                    yield y
+
+class FAsyncUpdateModeDynamics(ElementaryUpdateModeDynamics):
+    def __init__(self, model):
+        super().__init__(model, 1, 1)
+class GAsyncUpdateModeDynamics(ElementaryUpdateModeDynamics):
+    def __init__(self, model):
+        n = len(model)
+        super().__init__(model, 1, n)
+class SyncUpdateModeDynamics(ElementaryUpdateModeDynamics):
+    def __init__(self, model):
+        n = len(model)
+        super().__init__(model, n, n)

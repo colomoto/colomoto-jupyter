@@ -18,11 +18,10 @@ See https://github.com/colomoto/colomoto-jupyter
     install_requires = [
         "beautifulsoup4",
         "boolean.py",
+        "networkx >= 2.0",
         "pandas",
+        "pydot",
     ],
-    extras_require = {
-        "networkx": ["networkx >= 2.0", "pydot"],
-    },
     license="LGPL v3+/CeCILL-C",
     include_package_data = True,
     packages = find_packages(),
