@@ -703,3 +703,8 @@ class BlockSequentialUpdateModeDynamics(UpdateModeDynamics):
             for i in I:
                 y[i] = z[i]
         yield y
+
+
+class SequentialUpdateModeDynamics(BlockSequentialUpdateModeDynamics):
+    def __init__(self, sequence, model):
+        super().__init__([(i,) for i in sequence], model)
