@@ -690,3 +690,16 @@ class SyncUpdateModeDynamics(ElementaryUpdateModeDynamics):
     def __init__(self, model):
         n = len(model)
         super().__init__(model, n, n)
+
+class BlockSequentialUpdateModeDynamics(UpdateModeDynamics):
+    def __init__(self, sequence, model):
+        super().__init__(model)
+        self.sequence = sequence
+
+    def __call__(self, x):
+        y = x.copy()
+        for I in self.sequence:
+            z = self.model(y)
+            for i in I:
+                y[i] = z[i]
+        yield y
