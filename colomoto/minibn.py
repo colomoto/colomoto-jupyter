@@ -605,6 +605,13 @@ class UpdateModeDynamics(object):
         self.nodes = tuple(model)
         self.n = len(self.nodes)
 
+    def __call__(self, x):
+        """
+        Sub-classes have to implement this method which should return an
+        iterator (or list) over the states following `x`.
+        """
+        raise NotImplementedError
+
     def push(self, d, x):
         def fmt(z):
             return "".join([str(z[i]) for i in self.nodes])
