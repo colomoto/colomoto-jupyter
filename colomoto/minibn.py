@@ -609,6 +609,7 @@ class UpdateModeDynamics(object):
         def fmt(z):
             return "".join([str(z[i]) for i in self.nodes])
         rx = fmt(x)
+        d.add_node(rx)
         children = list(self(x))
         for y in children:
             d.add_edge(rx, fmt(y))
