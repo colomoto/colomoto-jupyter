@@ -370,11 +370,11 @@ class BooleanNetwork(BaseNetwork):
         """
         if isinstance(update_mode, str):
             if update_mode in ["asynchronous", "fully-asynchronous"]:
-                update_mode = FAsyncUpdateModeDynamics
+                update_mode = FullyAsynchronousDynamics
             elif update_mode == "general":
-                update_mode = GAsyncUpdateModeDynamics
+                update_mode = GeneralAsynchronousDynamics
             elif update_mode == "synchronous":
-                update_mode = SyncUpdateModeDynamics
+                update_mode = SynchronousDynamics
             else:
                 raise ValueError(f"Unknown update mode {update_mode}")
         update_mode = update_mode(self)
@@ -679,19 +679,19 @@ class ElementaryUpdateModeDynamics(UpdateModeDynamics):
                 if mod:
                     yield y
 
-class FAsyncUpdateModeDynamics(ElementaryUpdateModeDynamics):
+class FullyAsynchronousDynamics(ElementaryUpdateModeDynamics):
     def __init__(self, model):
         super().__init__(model, 1, 1)
-class GAsyncUpdateModeDynamics(ElementaryUpdateModeDynamics):
+class GeneralAsynchronousDynamics(ElementaryUpdateModeDynamics):
     def __init__(self, model):
         n = len(model)
         super().__init__(model, 1, n)
-class SyncUpdateModeDynamics(ElementaryUpdateModeDynamics):
+class SynchronousDynamics(ElementaryUpdateModeDynamics):
     def __init__(self, model):
         n = len(model)
         super().__init__(model, n, n)
 
-class BlockSequentialUpdateModeDynamics(UpdateModeDynamics):
+class BlockSequentialDynamics(UpdateModeDynamics):
     def __init__(self, sequence, model):
         super().__init__(model)
         self.sequence = sequence
@@ -705,6 +705,18 @@ class BlockSequentialUpdateModeDynamics(UpdateModeDynamics):
         yield y
 
 
-class SequentialUpdateModeDynamics(BlockSequentialUpdateModeDynamics):
+class SequentialDynamics(BlockSequentialDynamics):
     def __init__(self, sequence, model):
         super().__init__([(i,) for i in sequence], model)
+
+
+class BlockParallelDynamics(BlockSequentialDynamics):
+    def __init__(self, spec, model):
+        l = max(map(len,spec))
+        def m(seq):
+            ls = len(seq)
+            return l//ls + (1 if l%ls else 0)
+        spec = [seq*m(seq) for seq in spec]
+        sequence = [{seq[i] for seq in spec if seq[i] is not None} \
+                for i in range(l)]
+        super().__init__(sequence, model)
