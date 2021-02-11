@@ -356,7 +356,7 @@ class BooleanNetwork(BaseNetwork):
         finally:
             os.unlink(bnetfile)
 
-    def dynamics(self, update_mode="asynchronous", init=None):
+    def dynamics(self, update_mode="asynchronous", init=None, loops=None):
         """
         Returns a directed graph (`networkx.DiGraph` object) of the dynamics
         with the `update_mode`.
@@ -377,7 +377,10 @@ class BooleanNetwork(BaseNetwork):
                 update_mode = SynchronousDynamics
             else:
                 raise ValueError(f"Unknown update mode {update_mode}")
-        update_mode = update_mode(self)
+        opts = {}
+        if loops is not None:
+            opts["loops"] = loops
+        update_mode = update_mode(self, **opts)
         if init:
             return update_mode.partial_dynamics(init)
         else:
@@ -598,12 +601,13 @@ class GAsyncRun(_RandomRun):
 
 
 class UpdateModeDynamics(object):
-    def __init__(self, model):
+    def __init__(self, model, loops=False):
         if not isinstance(model, BooleanNetwork):
             raise TypeError("Only BooleanNetwork objects are supported")
         self.model = model
         self.nodes = tuple(model)
         self.n = len(self.nodes)
+        self.loops = loops
 
     def __call__(self, x):
         """
@@ -661,8 +665,8 @@ class UpdateModeDynamics(object):
         return d
 
 class ElementaryUpdateModeDynamics(UpdateModeDynamics):
-    def __init__(self, model, min_u, max_u):
-        super().__init__(model)
+    def __init__(self, model, min_u, max_u, **opts):
+        super().__init__(model, **opts)
         self.min_u = min_u
         self.max_u = max_u
 
@@ -671,7 +675,7 @@ class ElementaryUpdateModeDynamics(UpdateModeDynamics):
         for k in range(self.min_u, self.max_u+1):
             for I in itertools.combinations(self.nodes, k):
                 y = x.copy()
-                mod = False
+                mod = False or self.loops
                 for i in I:
                     if z[i] != y[i]:
                         mod = True
@@ -680,16 +684,16 @@ class ElementaryUpdateModeDynamics(UpdateModeDynamics):
                     yield y
 
 class FullyAsynchronousDynamics(ElementaryUpdateModeDynamics):
-    def __init__(self, model):
-        super().__init__(model, 1, 1)
+    def __init__(self, model, **opts):
+        super().__init__(model, 1, 1, **opts)
 class GeneralAsynchronousDynamics(ElementaryUpdateModeDynamics):
-    def __init__(self, model):
+    def __init__(self, model, **opts):
         n = len(model)
-        super().__init__(model, 1, n)
+        super().__init__(model, 1, n, **opts)
 class SynchronousDynamics(ElementaryUpdateModeDynamics):
-    def __init__(self, model):
+    def __init__(self, model, **opts):
         n = len(model)
-        super().__init__(model, n, n)
+        super().__init__(model, n, n, **opts)
 
 class BlockSequentialDynamics(UpdateModeDynamics):
     def __init__(self, sequence, model):
