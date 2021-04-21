@@ -17,7 +17,7 @@ except:
 # Setup PATH env for custom colomoto installations
 #
 if platform.system() == "Windows":
-    PREFIXES = [os.getenv("APPDATA"), "colomoto"]
+    PREFIXES = [os.path.join(os.getenv("APPDATA"), "colomoto")]
     binpaths = [os.path.join(p,"bin") for p in PREFIXES] \
                 + [os.path.join(p,"Library","bin") for p in PREFIXES]
 else:
@@ -66,11 +66,11 @@ def conda_package_extract(conda_url, prefix):
     def match_member(m):
         return m.name.split('/')[0] != 'info'
     with tarfile.open(localfile, "r:%s"%fmt) as tar:
-        for m in tar:
-            if match_member(m):
-                dest = os.path.join(prefix, m.name)
-                print("installing %s" % dest)
-                tar.extract(m, prefix)
+        members = [m for m in tar.getmembers() if match_member(m)]
+        for m in members:
+            dest = os.path.join(prefix, m.name)
+            print("installing %s" % dest)
+        tar.extractall(prefix, members)
     os.unlink(localfile)
 
 def is_installed(progname):
@@ -118,6 +118,8 @@ def setup(*specs):
                 print("# {} is already installed.".format(name))
                 continue
         print("# installing {} in {}".format(spec["pkg"], prefix))
+        if not os.path.exists(prefix):
+            os.makedirs(prefix)
         pkg = conda_package_url(spec["pkg"])
         if pkg is None:
             print("Error: no package found for your system!")
