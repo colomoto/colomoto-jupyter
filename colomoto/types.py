@@ -25,6 +25,7 @@ class PartialState(dict):
             if v != "*" and s[k] != v:
                 return False
         return True
+    match_partial_state = match_state
     def project(self, keys):
         return dict([(k,v) for k,v in self.items() if k in keys])
 
@@ -51,6 +52,8 @@ class Hypercube(dict):
             if av != "*" and av != v:
                 return False
         return True
+    match_state = match_partial_state
+
     def project(self, keys):
         return dict([(k,v) for k,v in self.items() if k in keys])
 
@@ -89,6 +92,8 @@ class HypercubeCollection(list):
             if tsa.match_partial_state(ps):
                 return True
         return False
+    match_state = match_partial_state
+
     def project(self, keys):
         p = self[0].project(keys)
         for tp in self[1:]:
@@ -146,6 +151,21 @@ class HypercubeCollection(list):
     @property
     def is_single_state(self):
         return False
+
+    @classmethod
+    def cast(celf, states):
+        if isinstance(states, (celf, Hypercube, PartialState)):
+            return states
+        if isinstance(states, dict):
+            vals = set(states.values())
+            if "*" in vals:
+                return Hypercube(states)
+            if vals.difference([0,1]):
+                raise NotImplementedError("Use '*' to indicate free values")
+            return PartialState(states)
+        if isinstance(states, list):
+            return celf([celf.cast(s) for s in states])
+        raise TypeError(f"Don't know how to cast {type(states)}")
 
 # Deprecated
 class TrapSpaceAttractor(Hypercube):

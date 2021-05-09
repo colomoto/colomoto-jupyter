@@ -10,6 +10,7 @@ import unicodedata
 
 import networkx as nx
 
+from colomoto.types import HypercubeCollection
 from colomoto_jupyter import import_colomoto_tool
 from colomoto_jupyter.io import ensure_localfile
 from colomoto_jupyter.sessionfiles import new_output_file
@@ -625,6 +626,29 @@ class UpdateModeDynamics(object):
         for y in children:
             d.add_edge(rx, fmt(y))
         return children
+
+    def random_walk(self, init, steps=0, stop_condition=None, stop_at=None):
+        if stop_at:
+            stop_at = HypercubeCollection.cast(stop_at)
+            user_stop = stop_condition
+            def stop_condition(x):
+                if user_stop is not None and user_stop(x):
+                    return True
+                return stop_at.match_state(x)
+
+        x = init
+        yield x
+        i = 0
+        while True:
+            i += 1
+            nexts = list(self(x))
+            if nexts:
+                x = random.choice(nexts)
+            yield x
+            if i == steps:
+                break
+            if stop_condition is not None and stop_condition(x):
+                break
 
     def dynamics(self):
         d = nx.DiGraph()
