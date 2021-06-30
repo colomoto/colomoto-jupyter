@@ -721,7 +721,7 @@ class SynchronousDynamics(ElementaryUpdateModeDynamics):
         super().__init__(model, n, n, **opts)
 ParallelDynamics = SynchronousDynamics
 
-class BlockSequentialDynamics(UpdateModeDynamics):
+class PeriodicDynamics(UpdateModeDynamics):
     def __init__(self, sequence, model):
         super().__init__(model)
         self.sequence = sequence
@@ -734,6 +734,8 @@ class BlockSequentialDynamics(UpdateModeDynamics):
                 y[i] = z[i]
         yield y
 
+class BlockSequentialDynamics(PeriodicDynamics):
+    pass
 
 class SequentialDynamics(BlockSequentialDynamics):
     def __init__(self, sequence, model):
