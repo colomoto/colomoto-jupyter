@@ -363,7 +363,8 @@ class BooleanNetwork(BaseNetwork):
         with the `update_mode`.
 
         :param update_mode: either `"asynchronous"` (or equivalently
-            `"fully-asynchronous"`), `"synchronous"`, `"general"`.
+            `"fully-asynchronous"`), `"synchronous"` (or equivalently
+            `"parallel"`), `"general"`.
             Alternatively, it can be a function returning an
             :class:`.UpdateModeDynamics` object.
         :param dict[str,int] init: Optional initial state from which the
@@ -374,7 +375,7 @@ class BooleanNetwork(BaseNetwork):
                 update_mode = FullyAsynchronousDynamics
             elif update_mode == "general":
                 update_mode = GeneralAsynchronousDynamics
-            elif update_mode == "synchronous":
+            elif update_mode in ["synchronous", "parallel"]:
                 update_mode = SynchronousDynamics
             else:
                 raise ValueError(f"Unknown update mode {update_mode}")
@@ -718,6 +719,7 @@ class SynchronousDynamics(ElementaryUpdateModeDynamics):
     def __init__(self, model, **opts):
         n = len(model)
         super().__init__(model, n, n, **opts)
+ParallelDynamics = SynchronousDynamics
 
 class BlockSequentialDynamics(UpdateModeDynamics):
     def __init__(self, sequence, model):
