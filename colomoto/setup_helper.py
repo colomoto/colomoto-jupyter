@@ -90,19 +90,22 @@ def installation_prefix():
     else:
         return PREFIXES[-1]
 
-def setup(*specs):
+def setup(*specs, force=False, force_all=False, parse_args=True):
     if os.path.exists(os.path.join(sys.prefix, 'conda-meta')):
         print("You seem to be within a conda environment, nothing to do.")
         return
-    from argparse import ArgumentParser
-    parser = ArgumentParser()
-    parser.add_argument("-f", "--force", default=False, action="store_true",
-            help="Force (re)installation of the main dependency")
-    parser.add_argument("-F", "--force-all", default=False, action="store_true",
-            help="Force (re)installation o f all the dependencies")
-    args = parser.parse_args()
+    if parse_args:
+        from argparse import ArgumentParser
+        parser = ArgumentParser()
+        parser.add_argument("-f", "--force", default=force, action="store_true",
+                help="Force (re)installation of the main dependency")
+        parser.add_argument("-F", "--force-all", default=force_all, action="store_true",
+                help="Force (re)installation o f all the dependencies")
+        args = parser.parse_args()
+        force = args.force
+        force_all = args.force_all
     prefix = installation_prefix()
-    force = args.force or args.force_all
+    force = force or force_all
     for spec in specs:
         name = spec["pkg"].split('/')[-1]
         if not force:
@@ -125,7 +128,7 @@ def setup(*specs):
             print("Error: no package found for your system!")
             continue
         conda_package_extract(pkg, prefix)
-        force = args.force_all
+        force = force_all
 
 PKG = {
     "clingo": {"pkg": "colomoto/clingo", "check_progs": ["clingo"]},
