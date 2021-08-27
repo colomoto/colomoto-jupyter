@@ -603,6 +603,9 @@ class GAsyncRun(_RandomRun):
 
 
 class UpdateModeDynamics(object):
+    """
+    Abstract class for the updating mode of a BooleanNetwork object
+    """
     def __init__(self, model, loops=False):
         if not isinstance(model, BooleanNetwork):
             raise TypeError("Only BooleanNetwork objects are supported")
@@ -625,7 +628,9 @@ class UpdateModeDynamics(object):
         d.add_node(rx)
         children = list(self(x))
         for y in children:
-            d.add_edge(rx, fmt(y))
+            ry = fmt(y)
+            if rx != ry or self.loops:
+                d.add_edge(rx, ry)
         return children
 
     def random_walk(self, init, steps=0, stop_condition=None, stop_at=None):
@@ -716,14 +721,21 @@ class GeneralAsynchronousDynamics(ElementaryUpdateModeDynamics):
         n = len(model)
         super().__init__(model, 1, n, **opts)
 class SynchronousDynamics(ElementaryUpdateModeDynamics):
-    def __init__(self, model, **opts):
+    def __init__(self, model, loops=True, **opts):
         n = len(model)
-        super().__init__(model, n, n, **opts)
+        super().__init__(model, n, n, loops=loops, **opts)
 ParallelDynamics = SynchronousDynamics
 
 class PeriodicDynamics(UpdateModeDynamics):
-    def __init__(self, sequence, model):
-        super().__init__(model)
+    """
+    Periodic (deterministic) updating mode.
+
+    It is parameterized by a sequence of sets of nodes to update simultaneously
+    in order to compute the next configuration.
+
+    """
+    def __init__(self, sequence, model, loops=True):
+        super().__init__(model, loops=loops)
         self.sequence = sequence
 
     def __call__(self, x):
@@ -738,12 +750,12 @@ class BlockSequentialDynamics(PeriodicDynamics):
     pass
 
 class SequentialDynamics(BlockSequentialDynamics):
-    def __init__(self, sequence, model):
-        super().__init__([(i,) for i in sequence], model)
+    def __init__(self, sequence, model, **opts):
+        super().__init__([(i,) for i in sequence], model, **opts)
 
 
 class BlockParallelDynamics(BlockSequentialDynamics):
-    def __init__(self, spec, model):
+    def __init__(self, spec, model, **opts):
         l = max(map(len,spec))
         def m(seq):
             ls = len(seq)
@@ -751,4 +763,4 @@ class BlockParallelDynamics(BlockSequentialDynamics):
         spec = [seq*m(seq) for seq in spec]
         sequence = [{seq[i] for seq in spec if seq[i] is not None} \
                 for i in range(l)]
-        super().__init__(sequence, model)
+        super().__init__(sequence, model, **opts)
