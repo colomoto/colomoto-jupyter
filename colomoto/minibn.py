@@ -1,4 +1,5 @@
 
+from collections import Hashable
 import copy
 import itertools
 import os
@@ -736,7 +737,12 @@ class PeriodicDynamics(UpdateModeDynamics):
     """
     def __init__(self, sequence, model, loops=True):
         super().__init__(model, loops=loops)
-        self.sequence = sequence
+        # allow for elements of the sequence to be directly a node
+        def magic(I):
+            if isinstance(I, Hashable) and I in model:
+                return {I}
+            return I
+        self.sequence = tuple(map(magic, sequence))
 
     def __call__(self, x):
         y = x.copy()
@@ -756,6 +762,11 @@ class SequentialDynamics(BlockSequentialDynamics):
 
 class BlockParallelDynamics(BlockSequentialDynamics):
     def __init__(self, spec, model, **opts):
+        def magic(I):
+            if isinstance(I, Hashable) and I in model:
+                return (I,)
+            return I
+        spec = [magic(I) for I in spec]
         l = max(map(len,spec))
         def m(seq):
             ls = len(seq)
