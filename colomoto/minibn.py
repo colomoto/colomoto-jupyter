@@ -1,5 +1,5 @@
 
-from collections import Hashable
+from collections.abc import Hashable
 import copy
 import itertools
 import os
