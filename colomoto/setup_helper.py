@@ -20,14 +20,23 @@ if platform.system() == "Windows":
     PREFIXES = [os.path.join(os.getenv("APPDATA"), "colomoto")]
     binpaths = [os.path.join(p,"bin") for p in PREFIXES] \
                 + [os.path.join(p,"Library","bin") for p in PREFIXES]
+    libpaths = [os.path.join(p,"lib") for p in PREFIXES] \
+                + [os.path.join(p,"Library","lib") for p in PREFIXES]
 else:
     PREFIXES = ["/usr/local/share/colomoto",
         os.path.join(os.path.expanduser("~"), ".local", "share", "colomoto")]
     binpaths = [os.path.join(p, "bin") for p in PREFIXES]
+    libpaths = [os.path.join(p, "lib") for p in PREFIXES]
 
 binpaths = [p for p in binpaths if os.path.exists(p)]
 if binpaths:
     os.environ["PATH"] = "%s:%s" % (":".join(binpaths), os.environ["PATH"])
+libpaths = [p for p in libpaths if os.path.exists(p)]
+if libpaths:
+    ldpath = os.environ.get("LD_LIBRARY_PATH", "")
+    if ldpath:
+        libpaths.append(ldpath)
+    os.environ["LD_LIBRARY_PATH"] = ":".join(libpaths)
 #
 ##
 
