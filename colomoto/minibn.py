@@ -1,6 +1,7 @@
 
 from collections.abc import Hashable
 import copy
+import hashlib
 import itertools
 import os
 import random
@@ -234,6 +235,30 @@ def simplify_dnf(ba, f):
         return ba.dnf(ba.cnf(f))
     return f
 
+def struct_of_dnf(ba, f, container=frozenset, sort=False):
+    def make_lit(l):
+        if isinstance(l, ba.NOT):
+            return (l.args[0].obj, False)
+        else:
+            return (l.obj, True)
+    def make_clause(c):
+        if isinstance(c, ba.AND):
+            lits = c.args
+        else:
+            lits = [c]
+        lits = map(make_lit, lits)
+        return container(sorted(lits) if sort else lits)
+    if f is ba.TRUE:
+        return True
+    elif f is ba.FALSE:
+        return False
+    if not isinstance(f, ba.OR):
+        clauses = [f]
+    else:
+        clauses = f.args
+    clauses = map(make_clause, clauses)
+    return container(sorted(clauses) if sort else clauses)
+
 class BooleanNetwork(BaseNetwork):
 
     biolqm_format = "bnet"
@@ -302,6 +327,20 @@ class BooleanNetwork(BaseNetwork):
 
             return list(map(make_clause, clauses))
         return {i: make_dnf(f) for (i,f) in self.items()}
+
+    def make_hash(self, simplify=False):
+        """
+        compute a hash for the BN based on its DNF representation
+        """
+        D = []
+        for i, f in sorted(self.items()):
+            if f not in [self.ba.TRUE, self.ba.FALSE]:
+                f = self.ba.dnf(f)
+                if simplify:
+                    f = simplify_dnf(self.ba, f)
+            struct = struct_of_dnf(self.ba, f, container=tuple, sort=True)
+            D.append((i,struct))
+        return hashlib.md5(str(D).encode()).hexdigest()
 
     def influence_graph(self):
         import networkx as nx
