@@ -688,8 +688,9 @@ class UpdateModeDynamics(object):
         while True:
             i += 1
             nexts = list(self(x))
-            if nexts:
-                x = random.choice(nexts)
+            if not nexts or (len(nexts) == 1 and nexts[0] == x):
+                return
+            x = random.choice(nexts)
             yield x
             if i == steps:
                 break
