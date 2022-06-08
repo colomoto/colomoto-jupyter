@@ -278,8 +278,8 @@ class BooleanNetwork(BaseNetwork):
     def import_data(self, data):
         header = None
         for line in data:
-            line = line.strip()
-            if not line or line.startswith("#"):
+            line = line.split("#")[0].strip()
+            if not line:
                 continue
             sep = line.find("<-")
             if sep < 0:
