@@ -30,12 +30,25 @@ class NOT(boolean.NOT):
         super().__init__(*args)
         self.operator = "!"
 
+import boolean.boolean as bpy
+
+class _TRUE(bpy._TRUE):
+    def __call__(self, **kw):
+        return self if not kw else True
+
+
+class _FALSE(bpy._FALSE):
+    def __call__(self, **kw):
+        return self if not kw else False
+
 
 class BaseNetwork(dict):
     def __init__(self, data=None, Symbol_class=boolean.Symbol,
             allowed_in_name=('.','_',':','-'), **kwargs):
         super().__init__()
         self.ba = boolean.BooleanAlgebra(NOT_class=NOT,
+            TRUE_class=_TRUE,
+            FALSE_class=_FALSE,
             Symbol_class=Symbol_class,
             allowed_in_token=allowed_in_name)
         if data:
