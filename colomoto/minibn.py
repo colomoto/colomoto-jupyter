@@ -19,28 +19,28 @@ from colomoto_jupyter.sessionfiles import new_output_file
 from colomoto_jupyter import IN_IPYTHON, jupyter_setup
 
 import boolean
+import boolean.boolean as bpy
 
 re_nonword = re.compile(r"\W", flags=re.A)
 
 if IN_IPYTHON:
     jupyter_setup("minibn", label="miniBN")
 
-class NOT(boolean.NOT):
+class NOT(bpy.NOT):
     def __init__(self, *args):
         super().__init__(*args)
         self.operator = "!"
-
-import boolean.boolean as bpy
 
 class _TRUE(bpy._TRUE):
     def __call__(self, **kw):
         return self if not kw else True
 
-
 class _FALSE(bpy._FALSE):
     def __call__(self, **kw):
         return self if not kw else False
 
+def is_constant(f):
+    return isinstance(f, (bpy._TRUE,bpy._FALSE))
 
 class BaseNetwork(dict):
     def __init__(self, data=None, Symbol_class=boolean.Symbol,
@@ -374,12 +374,9 @@ class BooleanNetwork(BaseNetwork):
         return ig
 
     def constants(self):
-        csttypes = [boolean.boolean._TRUE, boolean.boolean._FALSE]
-        return {i:f is self.ba.TRUE for i,f in self.items() \
-                if type(f) in csttypes}
+        return {i: f for i,f in self.items() if is_constant(f)}
 
     def propagate_constants(self):
-        csttypes = [boolean.boolean._TRUE, boolean.boolean._FALSE]
         bn = self.copy()
         csts = {i:f for i, f in bn.items() if type(f) in csttypes}
         while csts:
