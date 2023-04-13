@@ -307,13 +307,13 @@ class BooleanNetwork(BaseNetwork):
                 continue
             self[left] = self.ba.parse(right)
 
-    def simplify(self):
-        bn = copy.copy(self)
+    def simplify(self, in_place=False):
+        bn = self if in_place else copy.copy(self)
         for a, f in bn.items():
             f = f.simplify()
             f = simplify_dnf(self.ba, f)
             bn[a] = f
-        return bn
+        return bn if not in_place else None
 
     def as_dnf(self):
         def make_lit(l):
