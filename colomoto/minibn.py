@@ -307,11 +307,18 @@ class BooleanNetwork(BaseNetwork):
                 continue
             self[left] = self.ba.parse(right)
 
-    def simplify(self, in_place=False):
+    def simplify(self, in_place=False, suspect_dnf=True):
+        """
+        if in_place, modifies the network in place, otherwise works on a copy
+        returns it.
+        if suspect_dnf, try harder simplifications for functions that are in DNF and have literals with
+        opposite signs in clauses (will make CNF and DNF transformations).
+        """
         bn = self if in_place else copy.copy(self)
         for a, f in bn.items():
             f = f.simplify()
-            f = simplify_dnf(self.ba, f)
+            if suspect_dnf:
+                f = simplify_dnf(self.ba, f)
             bn[a] = f
         return bn if not in_place else None
 
