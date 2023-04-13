@@ -377,20 +377,24 @@ class BooleanNetwork(BaseNetwork):
         return {i: f for i,f in self.items() if is_constant(f)}
 
     def propagate_constants(self):
-        bn = self.copy()
-        csts = {i:f for i, f in bn.items() if type(f) in csttypes}
+        """
+        For each node having a constant function, replace references to that
+            node by the constant in the expression of all the other nodes.
+        Performs simple function simplification.
+        Modifies the Boolean network in-place.
+        The set of constant nodes can be accessed with the `constants()` method.
+        """
+        csts = {self.v(i): self.ba.TRUE if bool(f) else self.ba.FALSE
+                    for i, f in self.constants().items()}
         while csts:
             new_csts = {}
-            for a in bn.keys():
-                if a in csts:
-                    continue
-                bn.rewrite(a, csts)
-                if type(bn[a]) in csttypes:
-                    new_csts[a] = bn[a]
-            for a in csts:
-                del bn[a]
+            for a, fa, in self.items():
+                if not is_constant(fa):
+                    fa = fa.subs(csts).simplify()
+                    self[a] = fa
+                    if is_constant(fa):
+                        new_csts[self.v(a)] = fa
             csts = new_csts
-        return bn
 
     def to_pint(self):
         pypint = import_colomoto_tool("pypint")
