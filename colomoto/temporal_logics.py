@@ -139,9 +139,9 @@ def its_of_expr(e, tr):
             right = to_its(e.right)
             left = to_its(e.left)
             if isinstance(e, And):
-                tmpl = "({}) && ({})"
+                tmpl = "({})&&({})"
             elif isinstance(e, Or):
-                tmpl = "({}) || ({})"
+                tmpl = "({})||({})"
             elif isinstance(e, If):
                 tmpl = "({}) -> ({})"
             elif isinstance(e, EU):
