@@ -132,17 +132,10 @@ class BaseNetwork(dict):
         return ntr
 
     def __call__(self, cfg):
-        tr = self._normalize_tr(cfg)
-        def _autostate(expr):
-            if expr == self.ba.TRUE:
-                return 1
-            elif expr == self.ba.FALSE:
-                return 0
-            return expr
-        return {a: _autostate(self[a].subs(tr).simplify()) for a in self}
+        return {a: int(self[a](**cfg)) for a in self}
 
     def zero(self):
-        return {a:0 for a in self}
+        return {a: 0 for a in self}
 
     def rewrite(self, a, tr, simplify=True):
         tr = self._normalize_tr(tr)
