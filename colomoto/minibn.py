@@ -411,6 +411,13 @@ class BooleanNetwork(BaseNetwork):
         finally:
             os.unlink(bnetfile)
 
+    def save(self, filename):
+        """
+        Write Boolean network to `filename` in BooleanNet format (`.bnet`)
+        """
+        with open(filename, "w") as fp:
+            fp.write(self.source())
+
     def dynamics(self, update_mode="asynchronous", init=None, loops=None):
         """
         Returns a directed graph (`networkx.DiGraph` object) of the dynamics
