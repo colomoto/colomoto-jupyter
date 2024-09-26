@@ -129,6 +129,7 @@ class HypercubeCollection(list):
                 for h in self:
                     fp.write("".join([str(h[n]).replace("*","-") for n in nodes]))
                     fp.write(" 1\n")
+                fp.write(".type f\n")
                 fp.write(".e\n")
             esp = subprocess.run(["espresso", inp], capture_output=True,
                     encoding="ascii")
