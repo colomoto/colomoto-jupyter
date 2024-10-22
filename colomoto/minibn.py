@@ -254,9 +254,9 @@ def struct_of_dnf(ba, f, container=frozenset, sort=False):
             lits = [c]
         lits = map(make_lit, lits)
         return container(sorted(lits) if sort else lits)
-    if f is ba.TRUE:
+    if isinstance(f, bpy._TRUE):
         return True
-    elif f is ba.FALSE:
+    elif isinstance(f, bpy._FALSE):
         return False
     if not isinstance(f, ba.OR):
         clauses = [f]
