@@ -40,7 +40,7 @@ class _FALSE(bpy._FALSE):
         return self if not kw else False
 
 def is_constant(f):
-    return isinstance(f, (bpy._TRUE,bpy._FALSE))
+    return isinstance(f, (bpy._TRUE,bpy._FALSE, bool))
 
 class BaseNetwork(dict):
     def __init__(self, data=None, Symbol_class=boolean.Symbol,
@@ -392,8 +392,8 @@ class BooleanNetwork(BaseNetwork):
                 if not is_constant(fa):
                     fa = fa.subs(csts).simplify()
                     self[a] = fa
-                    if is_constant(fa):
-                        new_csts[self.v(a)] = fa
+                    if is_constant(self[a]):
+                        new_csts[self.v(a)] = self[a]
             csts = new_csts
 
     def to_pint(self):
