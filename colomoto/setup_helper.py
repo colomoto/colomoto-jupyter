@@ -49,6 +49,7 @@ def conda_package_url(name, version=None, label="main"):
     if version is None:
         version = data["latest_version"]
     b = None
+    pybuild = f"py{sys.version_info.major}{sys.version_info.minor}"
     for f in data["files"]:
         if f["version"] != version:
             continue
@@ -59,6 +60,12 @@ def conda_package_url(name, version=None, label="main"):
                 continue
             if f["attrs"]["machine"] != machine:
                 continue
+        build = f["attrs"]["build"]
+        if build.startswith("py") \
+            and not build.startswith("py_") \
+                and not build.startswith("pyh") \
+                and not build.startswith(pybuild):
+            continue
         if b is None or f["attrs"]["build_number"] > b["attrs"]["build_number"]:
             b = f
     return "http:{}".format(b["download_url"]) if b else None
