@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 import tarfile
+import tempfile
 
 try:
     from urllib.request import urlretrieve, urlopen
@@ -77,17 +78,35 @@ def prepare_dest(dest):
 
 def conda_package_extract(conda_url, prefix):
     print("downloading {}".format(conda_url))
-    localfile = urlretrieve(conda_url)[0]
-    fmt = conda_url.split(".")[-1]
-    def match_member(m):
-        return m.name.split('/')[0] != 'info'
-    with tarfile.open(localfile, "r:%s"%fmt) as tar:
-        members = [m for m in tar.getmembers() if match_member(m)]
-        for m in members:
-            dest = os.path.join(prefix, m.name)
-            print("installing %s" % dest)
-        tar.extractall(prefix, members)
-    os.unlink(localfile)
+    tmpd = tempfile.mkdtemp("_colomoto")
+    try:
+        fn = conda_url.split("/")[-1]
+        localfile = urlretrieve(conda_url, os.path.join(tmpd, fn))[0]
+        fmt = conda_url.split(".")[-1]
+
+        if fmt == "conda":
+            try:
+                from conda_package_handling.api import transmute
+            except ImportError:
+                print("You must run \n\n\tpip install  conda-package-handling\n",
+                      file=sys.stderr)
+                sys.exit(1)
+            errors = transmute(localfile, ".tar.bz2")
+            if errors:
+                raise Exception(f"Failed to convert conda package ({errors})")
+            localfile = localfile[:-len(fmt)] + "tar.bz2"
+            fmt = "bz2"
+
+        def match_member(m):
+            return m.name.split('/')[0] != 'info'
+        with tarfile.open(localfile, "r:%s"%fmt) as tar:
+            members = [m for m in tar.getmembers() if match_member(m)]
+            for m in members:
+                dest = os.path.join(prefix, m.name)
+                print("installing %s" % dest)
+            tar.extractall(prefix, members)
+    finally:
+        shutil.rmtree(tmpd)
 
 def is_installed(progname):
     if sys.version_info[0] < 3:
