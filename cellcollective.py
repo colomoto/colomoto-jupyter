@@ -44,7 +44,7 @@ class CellCollectiveConnector(object):
         self.id, self.version = idv
     @property
     def sbml_urls(self):
-        url = f"https://research.cellcollective.org/_api/model/export/{self.id}?type=SBML&version={self.version}"
+        url = f"https://research.cellcollective.org/web/api/model/{self.id}/export/version/{self.version}?type=SBML&modeltype=boolean"
         return [url]
     @property
     def sbml_basename(self):
