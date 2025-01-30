@@ -22,6 +22,6 @@ def install_default_formatters():
     ip = get_ipython()
     if HAS_NETWORKX:
         # nxgraph to svg
-        svg_formatter = ip.display_formatter.formatters["image/svg+xml"]
+        svg_formatter = ip.display_formatter.formatters["text/html"]
         svg_formatter.for_type(nx.Graph, svg_of_graph)
 
