@@ -14,7 +14,6 @@ _installed_modules: set[str] = set()
 
 def ipylab_front_end() -> JupyterFrontEnd:
     """Return the singleton object used to access Jupyter frontend."""
-    global _jupyter_front_end
     assert _jupyter_front_end is not None
     return _jupyter_front_end
 
