@@ -1,5 +1,3 @@
-from time import sleep
-
 from colomoto_jupyter import IN_IPYTHON, jupyter_setup
 from colomoto_jupyter.ipylab import (
     ipylab_insert_snippet,
