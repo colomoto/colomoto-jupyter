@@ -141,8 +141,56 @@ def _setup_menu(
     color: str = None,
     bgcolor: str = None,
 ) -> None:
+    def add_command(label, command_name, cmd) -> str:
+        try:
+            _jupyter_front_end.commands.add_command(command_name, execute=cmd, label=label)
+            return command_name
+        except:
+            pass
+        return None
+
+    def generate_snippets(title : str, menuspec : list[dict | str]) -> list[dict | str]:
+        result = []
+        for entry in menuspec:
+            newentry = {}
+            if isinstance(entry, str):
+                newentry = entry
+            elif "name" not in entry:
+                raise Exception("invalid menu entry '{entry}'; 'name' is missing.")
+            else:
+                name = entry["name"]
+                if "command" in entry:
+                    newentry["command"] = entry["command"]
+                elif "sub-menu" in entry:
+                    newentry["sub-menu"] = generate_snippets(f"{title}:{name}", entry["sub-menu"])
+                elif "external-link" in entry:
+                    def cmd(url):
+                        return lambda: _jupyter_front_end.commands.execute("help:open", {"url": url})
+                    command_name = f"custom-menu:open-url:{title}:{name}"
+                    newentry["command"] = add_command(name, command_name, cmd(entry["external-link"]))
+                elif "snippet" in entry:
+                    def cmd(snippet):
+                        return lambda: _jupyter_front_end.commands.execute(
+                            "custom-menu:snippet", snippet
+                        )
+                    command_name = f"custom-menu:snippet:{title}:{name}"
+                    newentry["command"] = add_command(name, command_name, cmd(entry["snippet"]))
+                elif "run-snippet" in entry:
+                    def cmd(snippet):
+                        return lambda: _jupyter_front_end.commands.execute(
+                            "custom-menu:run-snippet", snippet
+                        )
+                    command_name = f"custom-menu:run-snippet:{title}:{name}"
+                    newentry["command"] = add_command(name, command_name, cmd(entry["run-snippet"]))
+                else:
+                    raise Exception(f"unknown menu entry '{entry}'")
+                newentry["name"] = name
+                result.append(newentry)
+        return result
+
     menu_classname = f"{module_name}-menu"
-    _jupyter_front_end.menu.add_menu(label, menu, menu_classname)
+    actual_menu = generate_snippets(label, menu)
+    _jupyter_front_end.menu.add_menu(label, actual_menu, menu_classname)
     _setup_css_for_menu_(menu_classname, color, bgcolor)
 
 
