@@ -6,8 +6,6 @@ from IPython.display import display, HTML
 
 from .sessionfiles import new_output_file
 
-import sys
-
 def _jupyter_upload_callback(data):
     filename = new_output_file(suffix="_%s" % data["name"])
     content = base64.b64decode(data["content"].split(",")[1])

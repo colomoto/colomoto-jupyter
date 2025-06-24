@@ -20,6 +20,8 @@ except NameError:
 
 if IN_IPYTHON:
     from IPython.display import display, HTML, SVG, Image, Markdown
+    from .ipylab import ipylab_ui_setup
+    from .ui import logger
 
     pd.set_option("display.max_columns", None)
 
@@ -94,7 +96,13 @@ def jupyter_setup(*args, **kwargs):
         with open(jsfile) as f:
             js_src = f.read()
         __GLOBAL_INSTALL_DONE = True
-
+    label=kwargs.get("label", None)
+    menu=kwargs.pop("menu", None)
+    toolbar=kwargs.pop("toolbar", None)
+    color=kwargs.get("color",None)
+    bgcolor=kwargs.pop("bgcolor", None)
+    ipylab_ui_setup(args[0], label=label, menu=menu, toolbar=toolbar,
+                    color=color, bgcolor=bgcolor)
     jsargs = {}
     wui_src = wui_sources(*args, **kwargs)
     js_src += wui_src["js"]
