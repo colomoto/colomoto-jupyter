@@ -3,7 +3,7 @@ from typing import Callable, Any
 from IPython.display import display, HTML
 from ipylab import JupyterFrontEnd
 from ipywidgets import widgets, interact
-from .upload import new_output_file
+from .sessionfiles import new_output_file
 
 _jupyter_front_end = JupyterFrontEnd()
 """Global objet to access Jupyter widgets through IPyLab API."""
@@ -215,9 +215,15 @@ def _setup_toolbar(
     for button_spec in toolbar:
         button_name = f"{module_name}_{button_spec['name']}"
         setup = button_spec["setup"]
+        h = setup["handler"]
+        if isinstance(h, str):
+            if h == "insert_snippet":
+                h = ipylab_insert_snippet
+            else:
+                raise Exception(f"Unknown handler '{h}' for toolbar")
         _jupyter_front_end.toolbar.add_button(
             button_name,
-            execute=setup["handler"],
+            execute=h,
             args=setup.get("args", {}),
             iconClass=setup.get("icon", None),
             after=setup.get("after", "cellType"),
