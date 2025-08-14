@@ -1,4 +1,3 @@
-include colomoto_jupyter/jupyter_ext.js
 prune .github
 exclude .gitignore
 prune conda
