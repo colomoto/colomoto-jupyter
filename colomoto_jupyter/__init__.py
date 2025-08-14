@@ -6,7 +6,6 @@ import base64
 import pandas as pd
 
 from .formatters import install_default_formatters
-from .wui import wui_sources
 
 from colomoto import types
 
@@ -18,10 +17,16 @@ try:
 except NameError:
     IN_IPYTHON = False
 
+HAS_IPYLAB = False
 if IN_IPYTHON:
     from IPython.display import display, HTML, SVG, Image, Markdown
-    from .ipylab import ipylab_ui_setup
     from .ui import logger
+    try:
+        from .ipylab import ipylab_ui_setup
+        HAS_IPYLAB = True
+    except ImportError:
+        raise
+        logger.warn("ipylab module is not installed, menus and toolbar are disabled.")
 
     pd.set_option("display.max_columns", None)
 
@@ -71,31 +76,14 @@ def import_colomoto_tool(modname):
             setattr(builtins, attr, mod)
     return mod
 
-def jupyter_js(data, autoclean=True, **args):
-    if os.getenv("COLOMOTO_SKIP_JUPYTER_JS") == "1":
-        return ""
-    if autoclean:
-        args["class"] = "to-be-removed"
-    args = " ".join(['%s="%s"' % it for it in args.items()]) if args else ""
-    return """<script type="text/javascript" %s>
-        if (typeof Jupyter != 'undefined') {
-            %s }</script>""" % (args, data)
-
-def disp_jupyter_js(data, **opts):
-    if os.getenv("COLOMOTO_SKIP_JUPYTER_JS") != "1":
-        display(HTML(jupyter_js(data, **opts)))
-
 __GLOBAL_INSTALL_DONE = False
 def jupyter_setup(*args, **kwargs):
-    js_src = ""
-    css_src = ""
     global __GLOBAL_INSTALL_DONE
     if not __GLOBAL_INSTALL_DONE:
-        jsfile = os.path.join(basedir, "jupyter_ext.js")
         install_default_formatters()
-        with open(jsfile) as f:
-            js_src = f.read()
         __GLOBAL_INSTALL_DONE = True
+    if not HAS_IPYLAB:
+        return
     label=kwargs.get("label", None)
     menu=kwargs.pop("menu", None)
     toolbar=kwargs.pop("toolbar", None)
@@ -103,16 +91,6 @@ def jupyter_setup(*args, **kwargs):
     bgcolor=kwargs.pop("bgcolor", None)
     ipylab_ui_setup(args[0], label=label, menu=menu, toolbar=toolbar,
                     color=color, bgcolor=bgcolor)
-    jsargs = {}
-    wui_src = wui_sources(*args, **kwargs)
-    js_src += wui_src["js"]
-    css_src += wui_src["css"]
-    if "ssid" in wui_src:
-        jsargs["id"] = wui_src["ssid"]
-
-    js_src = jupyter_js(js_src, **jsargs)
-    if os.getenv("COLOMOTO_SKIP_JUPYTER_JS") != "1":
-        display(HTML("%s%s" % (js_src, css_src)))
 
 def show_image(data, is_svg=False):
     if is_svg:

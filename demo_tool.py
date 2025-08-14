@@ -1,10 +1,4 @@
-from colomoto_jupyter import IN_IPYTHON, jupyter_setup
-from colomoto_jupyter.ipylab import (
-    ipylab_insert_snippet,
-    ipylab_insert_run_snippet,
-    ipylab_upload_and_process_filename,
-    ipylab_upload_and_process_filenames,
-)
+from colomoto_jupyter import IN_IPYTHON, HAS_IPYLAB, jupyter_setup
 
 if IN_IPYTHON:
     from IPython.display import display, FileLink
@@ -42,7 +36,7 @@ if IN_IPYTHON:
                 "icon": "fa fa-upload",
                 "label": __name__,
                 "help": "Upload model",
-                "handler": ipylab_insert_snippet,
+                "handler": "insert_snippet",
                 "args": {"snippet": f"{__name__}.upload('model')"},
             },
         },
@@ -79,13 +73,17 @@ def load(filename):
     return DummyModel(filename)
 
 
-if IN_IPYTHON:
+if IN_IPYTHON and HAS_IPYLAB:
 
-    def upload(model: str):
-        def callback(filename: str):
-            ipylab_insert_run_snippet(f"{model} = {__name__}.load('{filename}')")
+    from colomoto_jupyter.upload import jupyter_upload
 
-        ipylab_upload_and_process_filename(callback)
+    def upload(model_var: str):
+        return jupyter_upload(__name__, model_var, "load")
+
+    from colomoto_jupyter.ipylab import (
+        ipylab_insert_run_snippet,
+        ipylab_upload_and_process_filenames,
+    )
 
     def upload_many(model: str):
         def callback(filenames: list[str]):
