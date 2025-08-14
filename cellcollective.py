@@ -1,11 +1,13 @@
 
+import json
 import os
 import re
+import time
 
 import logging
 
 from urllib.parse import urlparse
-from urllib.request import HTTPError
+from urllib.request import HTTPError, urlopen
 
 from xml.dom import *
 from xml.dom.minidom import parse
@@ -15,6 +17,8 @@ from bs4 import BeautifulSoup
 from colomoto_jupyter import *
 
 logger = logging.getLogger(__name__)
+
+BASEURL_API = "https://research.cellcollective.org/web/api"
 
 urlidentifier = re.compile("https?://[^/]*\\bcellcollective\\.org/[^/]*#(\\d+)(:(\\d+))?\\b")
 
@@ -44,7 +48,7 @@ class CellCollectiveConnector(object):
         self.id, self.version = idv
     @property
     def sbml_urls(self):
-        url = f"https://research.cellcollective.org/web/api/model/{self.id}/export/version/{self.version}?type=SBML&modeltype=boolean"
+        url = f"{BASEURL_API}/model/{self.id}/export/version/{self.version}?type=SBML&modeltype=boolean"
         return [url]
     @property
     def sbml_basename(self):
@@ -53,6 +57,31 @@ class CellCollectiveConnector(object):
 def connect(identifier):
     return CellCollectiveConnector(identifier)
 
+def cellcollective_retrieve(url, filename):
+    ret = urlopen(url)
+    if ret.status != 200:
+        raise Exception(f"Invalid response while fetching {url}")
+    ctype = ret.getheader("Content-Type")
+    if ctype.startswith("application/json;"):
+        data = json.loads(ret.read())
+        ret.close()
+        assert type(data) is dict and "ping" in data, "Unknown response"
+        ping = data["ping"]
+
+        ready = False
+        while not ready:
+            time.sleep(1)
+            with urlopen(f"{BASEURL_API}/exports-status?ping={ping}") as f:
+                data = json.loads(f.read())
+                ready = data["data"]["ping"]
+        ret = urlopen(f"{BASEURL_API}/exports-status?ping={ping}&download=true")
+
+    with open(filename, "wb") as dest:
+        dest.write(ret.read())
+    headers = ret.getheaders()
+    ret.close()
+
+    return filename, headers
 
 METADATA_UNITPROTID = "UniProtID"
 METADATA_GENENAME = "GeneName"
@@ -167,7 +196,8 @@ To improve the repeatibility of this notebook, consider using the command
 and attach the "{bname}" file along with your notebook.""")
         for i, url in enumerate(urls):
             try:
-                sbmlfile = auto_download(url, bname)
+                sbmlfile = auto_download(url, bname, 
+                                retrieve=cellcollective_retrieve)
                 break
             except HTTPError:
                 if i == len(urls)-1:
@@ -178,3 +208,7 @@ def to_biolqm(model):
     biolqm = import_colomoto_tool("biolqm")
     lqm = biolqm.load(model.localfile)
     return biolqm.sanitize(lqm)
+
+if __name__ == "__main__":
+    print(load("https://cellcollective.org/#2329/apoptosis-network"))
+

@@ -15,18 +15,18 @@ if IN_IPYTHON:
 
 import cellcollective
 
-def download(url, suffix=None):
+def download(url, suffix=None, retrieve=urlretrieve):
     filename = new_output_file(suffix=suffix)
     info("Downloading %s" % url)
-    filename, _ = urlretrieve(url, filename=filename)
+    filename, _ = retrieve(url, filename=filename)
     return filename
 
-def auto_download(url, dest):
+def auto_download(url, dest, retrieve=urlretrieve):
     if cfg.auto_persistent and os.path.isfile(dest):
         if IN_IPYTHON:
             display(FileLink(dest, result_html_prefix="Using local file "))
             return dest
-    filename = download(url, suffix=dest)
+    filename = download(url, suffix=dest, retrieve=retrieve)
     if cfg.auto_persistent:
         shutil.move(filename, dest)
         filename = dest
