@@ -25,7 +25,6 @@ if IN_IPYTHON:
         from .ipylab import ipylab_ui_setup
         HAS_IPYLAB = True
     except ImportError:
-        raise
         logger.warn("ipylab module is not installed, menus and toolbar are disabled.")
 
     pd.set_option("display.max_columns", None)
