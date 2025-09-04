@@ -31,7 +31,7 @@ jobs:
         conda config --set channel_priority strict
         conda config --set anaconda_upload no
     - name: build
-      run:
+      run: |
         cd conda
         conda build -c defaults -c conda-forge -c colomoto .
     - name: upload
