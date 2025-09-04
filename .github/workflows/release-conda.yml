@@ -3,9 +3,12 @@ name: Packaging conda
 on:
   release:
     types: [created]
-  repository_dispatch:
-    types:
-      - 'packaging/conda/*-*-*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        type: string
 
 jobs:
   conda-publish:
@@ -16,8 +19,8 @@ jobs:
         echo VERSION=${GITHUB_REF##*/} >> $GITHUB_ENV
       if: github.event_name == 'release'
     - run:
-        echo VERSION=${REF##*/} >> $GITHUB_ENV
-      if: github.event_name == 'repository_dispatch'
+        echo VERSION=${{ inputs.version }} >> $GITHUB_ENV
+      if: github.event_name == 'workflow_dispatch'
       env:
           REF: ${{ github.event.action }}
     - run: sed -i "s:9999:${VERSION//*v/}:" setup.py conda/meta.yaml
