@@ -34,4 +34,4 @@ jobs:
       run: |
         cd conda
         conda build -c defaults -c conda-forge -c colomoto .
-        anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload -u colomoto /usr/share/miniconda/conda-bld/noarch/*.conda
+        anaconda  --verbose --token ${{ secrets.ANACONDA_TOKEN }} upload -u colomoto /usr/share/miniconda/conda-bld/noarch/*.conda
