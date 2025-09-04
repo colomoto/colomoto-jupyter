@@ -1,0 +1,34 @@
+name: Packaging conda
+
+on:
+  release:
+    types: [created]
+  repository_dispatch:
+    types:
+      - 'packaging/conda/*-*-*'
+
+jobs:
+  conda-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run:
+        echo VERSION=${GITHUB_REF##*/} >> $GITHUB_ENV
+      if: github.event_name == 'release'
+    - run:
+        echo VERSION=${REF##*/} >> $GITHUB_ENV
+      if: github.event_name == 'repository_dispatch'
+      env:
+          REF: ${{ github.event.action }}
+    - run: sed -i "s:9999:${VERSION//*v/}:" setup.py conda/meta.yaml
+    - uses: s-weigand/setup-conda@v1
+    - name: prepare
+      run: |
+        conda install -y python=3.12 anaconda-client conda-build conda-verify
+        conda config --set channel_priority strict
+        conda config --set anaconda_upload no
+    - name: build
+      run: |
+        cd conda
+        conda build -c defaults -c conda-forge -c colomoto .
+        anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload -u colomoto /usr/share/miniconda/conda-bld/noarch/*.conda
