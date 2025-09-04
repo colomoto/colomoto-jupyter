@@ -1,4 +1,4 @@
-name: Packaging conda
+name: Packaging-conda
 
 on:
   release:
@@ -35,4 +35,4 @@ jobs:
         cd conda
         conda build -c defaults -c conda-forge -c colomoto .
     - name: upload
-        anaconda  --verbose --token ${{ secrets.ANACONDA_TOKEN }} upload -u colomoto /usr/share/miniconda/conda-bld/noarch/*.conda --force
+      run: anaconda  --verbose --token ${{ secrets.ANACONDA_TOKEN }} upload -u colomoto /usr/share/miniconda/conda-bld/noarch/*.conda --force
