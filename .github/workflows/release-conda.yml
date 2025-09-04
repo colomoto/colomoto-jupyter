@@ -31,7 +31,8 @@ jobs:
         conda config --set channel_priority strict
         conda config --set anaconda_upload no
     - name: build
-      run: |
+      run:
         cd conda
         conda build -c defaults -c conda-forge -c colomoto .
-        anaconda  --verbose --token ${{ secrets.ANACONDA_TOKEN }} upload -u colomoto /usr/share/miniconda/conda-bld/noarch/*.conda
+    - name: upload
+        anaconda  --verbose --token ${{ secrets.ANACONDA_TOKEN }} upload -u colomoto /usr/share/miniconda/conda-bld/noarch/*.conda --force
