@@ -96,6 +96,18 @@ class BaseNetwork(dict):
     def __repr__(self):
         return self.source(sep=" <- ")
 
+    def __ior__(a, b):
+        if not isinstance(b, dict):
+            raise TypeError("rhs invalid type (must be dict)")
+        for k, v in b.items():
+            a[k] = v
+        return a
+
+    def __or__(a, b):
+        a = a.copy()
+        a |= b
+        return a
+
     @classmethod
     def load(celf, filename, **kwargs):
         f = celf(**kwargs)
