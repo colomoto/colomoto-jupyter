@@ -121,9 +121,15 @@ def ipylab_ui_setup(
         return
     _installed_modules.add(module_name)
     if menu is not None:
-        _setup_menu(module_name, label, menu, color, bgcolor)
+        try:
+            _setup_menu(module_name, label, menu, color, bgcolor)
+        except Exception:
+            pass
     if toolbar is not None:
-        _setup_toolbar(module_name, toolbar, color, bgcolor)
+        try:
+            _setup_toolbar(module_name, toolbar, color, bgcolor)
+        except Exception:
+            pass
 
 
 __all__ = (
