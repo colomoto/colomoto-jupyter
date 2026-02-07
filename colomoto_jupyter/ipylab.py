@@ -123,13 +123,13 @@ def ipylab_ui_setup(
     if menu is not None:
         try:
             _setup_menu(module_name, label, menu, color, bgcolor)
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
     if toolbar is not None:
         try:
             _setup_toolbar(module_name, toolbar, color, bgcolor)
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
 
 
 __all__ = (
@@ -196,6 +196,7 @@ def _setup_menu(
 
     menu_classname = f"{module_name}-menu"
     actual_menu = generate_snippets(label, menu)
+    _jupyter_front_end.menu.remove_menu(label)
     _jupyter_front_end.menu.add_menu(label, actual_menu, menu_classname)
     _setup_css_for_menu_(menu_classname, color, bgcolor)
 
